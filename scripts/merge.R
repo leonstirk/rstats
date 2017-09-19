@@ -1,7 +1,7 @@
 #! /usr/bin/env Rscript
 
 # Combine all the motherfucking csv files
-df <- do.call(rbind.fill, lapply(list.files(path = "./csv/", full.names = TRUE), read.csv))
+df <- do.call(rbind.fill, lapply(list.files(path = "./csv1/", full.names = TRUE), read.csv))
 
 # Attach a motherfucking ExtractionDate variable that's set to whatever date this script is run
 a <- rep(as.Date(Sys.Date()), nrow(df))
