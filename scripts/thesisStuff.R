@@ -34,13 +34,27 @@ t <- nrow(data)
 N <- t-(w-1)
 n <- c(1:N)
 
-for(i in n) {
-
- # c(i:(i+w-1))
-
- fit <- lm(avclus2[i:(i+w-1)] ~ avclus3[i:(i+w-1)] + avclus3_1[i:(i+w-1)], data = data) # etc
- sum <- summary(fit)
- fstat <- sum$fstatistic
- print(paste(sum$coefficients[2,c(1,3)]))
- print(paste(fstat[1]))
+jim <- function(i) {
+  summary(lm(avclus3[i:(i+w-1)] ~ avclus4[i:(i+w-1)] + avclus4_1[i:(i+w-1)], data = data))
 }
+
+gary <- function(i) {
+  i$coefficients[,c(1,3)]
+}
+
+bill <- function(i) {
+  i$fstatistic[1]
+}
+
+tim <- lapply(n, jim)
+barry <- lapply(tim, gary)
+gill <- lapply(tim, bill)
+
+lng <- length(barry)
+
+df <- data.frame(matrix(unlist(barry), nrow=lng, byrow=T))
+names(df) <- c("Intercept Estimate", "Cluster Estimate", "Cluster Lag Estimate", "Intercept t-value", "Cluster t-value", "Cluster Lag t-value")
+
+plot.ts(df)
+
+gill <- unlist(gill)
