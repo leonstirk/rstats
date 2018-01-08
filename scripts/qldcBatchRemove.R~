@@ -1,0 +1,14 @@
+#!/usr/bin/env Rscript
+
+filepath="/home/rstats/datasets/repairIDs.dat"
+
+con = file(filepath, "r")
+while ( TRUE ) {
+ line = readLines(con, n = 1)
+ if ( length(line) == 0 ) {
+  break
+ }
+ qldc$remove('{"PropertyNumber": line}')
+}
+
+close(con)
