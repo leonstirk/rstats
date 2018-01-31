@@ -1,5 +1,0 @@
-#!/usr/bin/env Rscript
-
-a<-read.csv("home/ubuntu/rstats/datasets/2013-mb-dataset-Total-New-Zealand-Dwelling.csv")
-
-a_long<-gather(a, key, value, names(a[4:ncol(a)]))
