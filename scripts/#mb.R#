@@ -82,8 +82,3 @@ names<-names(tmp_wide)
 ncats<-length(levels(droplevels(tmp$something_else)))
 cats<-tail(names, ncats)
 cats
-
-# c[c==""]<-NA
-
-# mb_wide<-spread(d,key,value)
-# mb_wide<-spread(e,something,something_else)
