@@ -3,7 +3,7 @@
 library('tidyr')
 library('reshape2')
 
-a<-read.csv("/home/ubuntu/rstats/datasets/2013-mb-dataset-Total-New-Zealand-Dwelling.csv")
+a<-read.csv("/home/ubuntu/rstats/datasets/2013-mb-dataset-Total-New-Zealand-Household.csv")
 
 mb<-a[1:46629,]
 # au<-a[46631:48642,]
@@ -58,27 +58,38 @@ names<-c("mbCode2013","auCode2013","auName2013","wdCode2013","wdName2013","taCod
 
 names(mb_long)<-names
 
-mb_long$key_char<-as.character(mb_long$key)
-tmp<-colsplit(mb_long$key_char, "_(?=[A-Z])", names=c("something", "something_else"))
-tmp$something<-as.factor(tmp$something)
-tmp$something_else<-as.factor(tmp$something_else)
+df<-spread(mb_long,key,value)
 
-mb_long<-cbind(mb_long,tmp)
+# mb_long$key_char<-as.character(mb_long$key)
+# tmp<-colsplit(mb_long$key_char, "_(?=[A-Z])", names=c("something", "something_else"))
+# tmp$something<-as.factor(tmp$something)
+# tmp$something_else<-as.factor(tmp$something_else)
 
-rm(tmp)
+# mb_long<-cbind(mb_long,tmp)
+
+# rm(tmp)
+
+# drops<-c("key_char","something","key")
+# mb_long<-mb_long[,!(names(mb_long) %in% drops)]
+
+# mb_wide<-spread(mb_long,something_else,value)
+
+# rm(mb_long)
 
 # Start for loop over groups
 # ngroups<-length(levels(mb_long$something))
 # i=1
 
-tmp<-mb_long[which(mb_long$something==levels(mb_long$something)[1]),]
+# tmp<-mb_long[which(mb_long$something==levels(mb_long$something)[1]),]
 
-drops<-c("key_char","something","key")
-tmp<-tmp[,!(names(tmp) %in% drops)]
+# drops<-c("key_char","something","key")
+# tmp<-tmp[,!(names(tmp) %in% drops)]
 
-tmp_wide<-spread(tmp,something_else,value)
+# tmp_wide<-spread(tmp,something_else,value)
 
-names<-names(tmp_wide)
-ncats<-length(levels(droplevels(tmp$something_else)))
-cats<-tail(names, ncats)
-cats
+# names<-names(tmp_wide)
+# ncats<-length(levels(droplevels(tmp$something_else)))
+# cats<-tail(names, ncats)
+# cats
+
+
