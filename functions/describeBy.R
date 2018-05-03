@@ -88,6 +88,6 @@
  }
  
  formatStat <- function(x, dp) {
-   format(round(x, dp), nsmall = dp)
+   format(round(x, dp), nsmall = dp, scientific = FALSE, big.mark = ',')
  }
  
