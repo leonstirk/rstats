@@ -62,3 +62,4 @@ mod_match <- matchit(treatment ~ distance_to_cbd + year_built + floor_area + bed
 
 dta_m <- match.data(mod_match)
 dim(dta_m)
+
