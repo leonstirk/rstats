@@ -1,13 +1,3 @@
-library(MatchIt)
-library(dplyr)
-library(ggplot2)
-
-setwd("/home/ubuntu/rstats")
-
-load("datasets/dud_allsales_2000to2015.Rda")
-
-das<-dud_allsales
-rm(dud_allsales)
 
 ## generate quarterly price index across all data (no spatial submarkets)
 
