@@ -1,0 +1,53 @@
+## generate quarterly price index across all data (no spatial submarkets)
+
+group_mean_summary <- das %>% group_by(sale_quarter) %>% summarise(n_sale_quarter = n(), mean_ln_real_sale_price = mean(ln_real_sale_price), std_error = sd(ln_real_sale_price/n_sale_quarter))
+
+t <- as.numeric(levels(as.factor(das$sale_quarter)))
+ti <- t[1]
+
+das_sub <- subset(das, das$sale_quarter == ti | das$sale_quarter == ti+1)
+das_sub$treatment <- ifelse(das_sub$sale_quarter == ti, 0 ,1)
+
+
+# non-covariate-adjusted difference in mean test for log inflation adjusted sale price
+t_test_output <- with(das_sub, t.test(ln_real_sale_price ~ sale_quarter))
+
+# define covariate space for pre-treatment
+das_sub_cov<-names(das_sub)[c(6,8,10:18)]
+covariates<-das_sub[,c(6,8,10:18,68)]
+
+das_sub_pretreatment_covariate_means <- das_sub %>% group_by(treatment) %>% select(one_of(das_sub_cov)) %>% summarise_all(funs(mean(., na.rm = T)))
+
+t_tests <- lapply(das_sub_cov, function(v) { t.test(das_sub[, v] ~ das_sub[, 'treatment']) })
+
+das_sub_pretreatment_covariate_t_stats <- unlist(lapply(t_tests, function(v) { v$statistic }))
+das_sub_pretreatment_covariate_p_values <- unlist(lapply(t_tests, function(v) { v$p.value }))
+das_sub_pretreatment_covariate_sig_dummy <- ifelse(das_sub_pretreatment_covariate_p_values <= 0.05, 1, 0)
+
+das_sub_pretreatment_cov_test_tables <- data.frame(das_sub_cov, das_sub_pretreatment_covariate_t_stats, das_sub_pretreatment_covariate_p_values, das_sub_pretreatment_covariate_sig_dummy)
+
+# propensity score estimation
+
+m_ps <- glm(treatment ~ ., family = binomial(), data = covariates)
+
+prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
+
+
+# Visual check of propensity score based distributional matching
+
+labs <- paste("Actual period sold:", c("t0", "t1"))
+prs_df %>%
+  mutate(treatment = ifelse(treatment == 1, labs[1], labs[2])) %>%
+  ggplot(aes(x = pr_score)) +
+  geom_histogram(color = "white") +
+  facet_wrap(~treatment) +
+  xlab("Probability of being sold in t1") +
+  theme_bw()
+
+# Execute matching algorithm
+das_sub_nomiss <- das_sub %>% select(ln_real_sale_price, treatment, one_of(das_sub_cov)) %>% na.omit()
+
+mod_match <- matchit(treatment ~ distance_to_cbd + year_built + floor_area + bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + land_area_100sqm, method = "nearest", data = das_sub_nomiss)
+
+dta_m <- match.data(mod_match)
+dim(dta_m)
