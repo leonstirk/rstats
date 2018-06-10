@@ -1,21 +1,19 @@
-
 ## generate quarterly price index across all data (no spatial submarkets)
 
-group_mean_summary <- das %>% group_by(sale_quarter) %>% summarise(n_sale_quarter = n(), mean_ln_real_sale_price = mean(ln_real_sale_price), std_error = sd(ln_real_sale_price/n_sale_quarter))
+group_mean_summary <- das %>% group_by(sale_quarter) %>% summarise(n_sale_quarter = n(), mean_ln_sale_price = mean(ln_sale_price), std_error = sd(ln_sale_price/n_sale_quarter))
 
 t <- as.numeric(levels(as.factor(das$sale_quarter)))
-ti <- t[1]
+ti <- t[50]
 
-das_sub <- subset(das, das$sale_quarter == ti | das$sale_quarter == ti+1)
+das_sub <- subset(das, das$sale_quarter == ti | das$sale_quarter == ti+5)
 das_sub$treatment <- ifelse(das_sub$sale_quarter == ti, 0 ,1)
 
 
-# non-covariate-adjusted difference in mean test for log inflation adjusted sale price
-t_test_output <- with(das_sub, t.test(ln_real_sale_price ~ sale_quarter))
+# non-covariate-adjusted difference in mean test for log net sale price
+t_test_output <- with(das_sub, t.test(ln_sale_price ~ sale_quarter))
 
 # define covariate space for pre-treatment
-das_sub_cov<-names(das_sub)[c(6,8,10:18)]
-covariates<-das_sub[,c(6,8,10:18,68)]
+das_sub_cov<-names(das_sub)[c(6,11:17,68,69,71)]
 
 das_sub_pretreatment_covariate_means <- das_sub %>% group_by(treatment) %>% select(one_of(das_sub_cov)) %>% summarise_all(funs(mean(., na.rm = T)))
 
@@ -29,8 +27,8 @@ das_sub_pretreatment_cov_test_tables <- data.frame(das_sub_cov, das_sub_pretreat
 
 # propensity score estimation
 
+covariates<- das_sub %>% select(QPID, ln_sale_price, treatment, one_of(das_sub_cov))
 m_ps <- glm(treatment ~ ., family = binomial(), data = covariates)
-
 prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
 
 
@@ -46,9 +44,9 @@ prs_df %>%
   theme_bw()
 
 # Execute matching algorithm
-das_sub_nomiss <- das_sub %>% select(ln_real_sale_price, treatment, one_of(das_sub_cov)) %>% na.omit()
+das_sub_nomiss <- das_sub %>% select(QPID, sale_id, sale_quarter, ln_sale_price, treatment, one_of(das_sub_cov)) %>% na.omit()
 
-mod_match <- matchit(treatment ~ distance_to_cbd + year_built + floor_area + bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + land_area_100sqm, method = "nearest", data = das_sub_nomiss)
+mod_match <- matchit(treatment ~ distance_to_cbd + bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + age_at_time_of_sale + ln_building_floor_area + ln_land_area, method = "nearest", data = das_sub_nomiss)
 
 dta_m <- match.data(mod_match)
-dim(dta_m)
+
