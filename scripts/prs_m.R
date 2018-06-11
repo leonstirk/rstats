@@ -3,9 +3,9 @@
 group_mean_summary <- das %>% group_by(sale_quarter) %>% summarise(n_sale_quarter = n(), mean_ln_sale_price = mean(ln_sale_price), std_error = sd(ln_sale_price/n_sale_quarter))
 
 t <- as.numeric(levels(as.factor(das$sale_quarter)))
-ti <- t[50]
+ti <- t[2]
 
-das_sub <- subset(das, das$sale_quarter == ti | das$sale_quarter == ti+5)
+das_sub <- subset(das, das$sale_quarter == ti | das$sale_quarter == ti+12)
 das_sub$treatment <- ifelse(das_sub$sale_quarter == ti, 0 ,1)
 
 
@@ -40,7 +40,7 @@ prs_df %>%
   ggplot(aes(x = pr_score)) +
   geom_histogram(color = "white") +
   facet_wrap(~treatment) +
-  xlab("Probability of being sold in t1") +
+  xlab("Probability of being sold in t0") +
   theme_bw()
 
 # Execute matching algorithm
