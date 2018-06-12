@@ -35,8 +35,6 @@ fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
 fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
 
 fs_ds <- data.frame(fs_means, fs_stdev)
-fs_ds$fs_means <- prettyNum(fs_ds$fs_means, scientific=FALSE, big.mark=",")
-fs_ds$fs_stdev <- prettyNum(fs_ds$fs_stdev, scientific=FALSE, big.mark=",")
-View(fs_ds)
+fs_ds <- format.data.frame(fs_ds, scientific=FALSE)
 
 # source("scripts/rep_s.R")
