@@ -31,10 +31,13 @@ das$view_type <- as.factor(das$view_type)
 
 das_vars <- names(das)[c(5,6,8,11:17,35,68:71)]
 
-fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
-fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
+# fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
+# fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
 
-fs_ds <- data.frame(fs_means, fs_stdev)
-fs_ds <- format.data.frame(fs_ds, scientific=FALSE)
+# fs_ds <- data.frame(fs_means, fs_stdev)
+# fs_ds <- format.data.frame(fs_ds, scientific=FALSE)
 
 # source("scripts/rep_s.R")
+
+das_caversham <- das[which(das$area_unit_id == '604210'),]
+das_concord <- das[which(das$area_unit_id == '605920'),]

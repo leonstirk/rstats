@@ -1,5 +1,0 @@
-source("scripts/das_data_preprocessing.R")
-
-meshblock.lm = lm(ln_sale_price ~ meshblock_id + bedrooms + bathrooms + ln_building_floor_area + ln_land_area, data=das)
-meshblock.res = resid(meshblock.lm)
-plot(das$meshblock_id, meshblock.res, ylab = "Residuals", xlab = "Meshblock ID", main = "Meshblock Residuals")
