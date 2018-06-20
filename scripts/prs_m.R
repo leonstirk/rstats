@@ -1,52 +1,49 @@
+source('scripts/das_data_preprocessing.R')
+
 ## generate quarterly price index across all data (no spatial submarkets)
 
-group_mean_summary <- das %>% group_by(sale_quarter) %>% summarise(n_sale_quarter = n(), mean_ln_sale_price = mean(ln_sale_price), std_error = sd(ln_sale_price/n_sale_quarter))
+a <- das_caversham
 
-t <- as.numeric(levels(as.factor(das$sale_quarter)))
+mean_summary <- a %>% group_by(sale_year) %>% dplyr::summarise(n_sale_year = n(), mean_ln_sale_price = mean(ln_sale_price), std_error = sd(ln_sale_price)/sqrt(n_sale_year))
+
+t <- as.numeric(levels(as.factor(a$sale_year)))
 ti <- t[2]
 
-das_sub <- subset(das, das$sale_quarter == ti | das$sale_quarter == ti+12)
-das_sub$treatment <- ifelse(das_sub$sale_quarter == ti, 0 ,1)
+a_sub <- subset(a, a$sale_year == ti | a$sale_year == ti+1)
+a_sub$treatment <- ifelse(a_sub$sale_year == ti, 0 ,1)
 
-
-# non-covariate-adjusted difference in mean test for log net sale price
-t_test_output <- with(das_sub, t.test(ln_sale_price ~ sale_quarter))
+# non-covariate-adjusted (non-matched) difference in mean test for log net sale price between treatment and control groups
+t_test_output <- with(a_sub, t.test(ln_sale_price ~ sale_year))
 
 # define covariate space for pre-treatment
-das_sub_cov<-names(das_sub)[c(6,11:17,68,69,71)]
+a_sub_cov<-tail(das_vars,-1)
 
-das_sub_pretreatment_covariate_means <- das_sub %>% group_by(treatment) %>% select(one_of(das_sub_cov)) %>% summarise_all(funs(mean(., na.rm = T)))
+a_sub_pretreatment_covariate_means <- a_sub %>% group_by(treatment) %>% dplyr::select(one_of(a_sub_cov)) %>% summarise_all(funs(mean(., na.rm = T)))
 
-t_tests <- lapply(das_sub_cov, function(v) { t.test(das_sub[, v] ~ das_sub[, 'treatment']) })
+t_tests <- lapply(a_sub_cov, function(v) { t.test(a_sub[, v] ~ a_sub[, 'treatment']) })
 
-das_sub_pretreatment_covariate_t_stats <- unlist(lapply(t_tests, function(v) { v$statistic }))
-das_sub_pretreatment_covariate_p_values <- unlist(lapply(t_tests, function(v) { v$p.value }))
-das_sub_pretreatment_covariate_sig_dummy <- ifelse(das_sub_pretreatment_covariate_p_values <= 0.05, 1, 0)
+a_sub_pretreatment_covariate_t_stats <- unlist(lapply(t_tests, function(v) { v$statistic }))
+a_sub_pretreatment_covariate_p_values <- unlist(lapply(t_tests, function(v) { v$p.value }))
+a_sub_pretreatment_covariate_sig_dummy <- ifelse(a_sub_pretreatment_covariate_p_values <= 0.05, 1, 0)
 
-das_sub_pretreatment_cov_test_tables <- data.frame(das_sub_cov, das_sub_pretreatment_covariate_t_stats, das_sub_pretreatment_covariate_p_values, das_sub_pretreatment_covariate_sig_dummy)
+a_sub_pretreatment_cov_test_tables <- data.frame(a_sub_cov, a_sub_pretreatment_covariate_t_stats, a_sub_pretreatment_covariate_p_values, a_sub_pretreatment_covariate_sig_dummy)
 
 # propensity score estimation
-
-covariates<- das_sub %>% select(QPID, ln_sale_price, treatment, one_of(das_sub_cov))
+covariates<- a_sub %>% dplyr::select(QPID, ln_sale_price, treatment, one_of(a_sub_cov))
 m_ps <- glm(treatment ~ ., family = binomial(), data = covariates)
 prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
 
-
 # Visual check of propensity score based distributional matching
-
-labs <- paste("Actual period sold:", c("t0", "t1"))
-prs_df %>%
-  mutate(treatment = ifelse(treatment == 1, labs[1], labs[2])) %>%
-  ggplot(aes(x = pr_score)) +
-  geom_histogram(color = "white") +
-  facet_wrap(~treatment) +
-  xlab("Probability of being sold in t0") +
-  theme_bw()
+# Kernel density estimates of propensity scores by treatment (t0, t1)
+sm.density.compare(prs_df$pr_score, prs_df$treatment)
 
 # Execute matching algorithm
-das_sub_nomiss <- das_sub %>% select(QPID, sale_id, sale_quarter, ln_sale_price, treatment, one_of(das_sub_cov)) %>% na.omit()
+a_sub_nomiss <- a_sub %>% select(QPID, sale_id, sale_quarter, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
 
-mod_match <- matchit(treatment ~ distance_to_cbd + bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + age_at_time_of_sale + ln_building_floor_area + ln_land_area, method = "nearest", data = das_sub_nomiss)
+modelstring <- 
 
-dta_m <- match.data(mod_match)
+
+mod_match <- matchit(modelstring, method = "nearest", data = das_sub_nomiss)
+
+# dta_m <- match.data(mod_match)
 

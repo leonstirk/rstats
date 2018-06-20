@@ -1,3 +1,5 @@
+rm(list=ls(all=TRUE))
+
 library(MatchIt)
 library(dplyr)
 library(ggplot2)
