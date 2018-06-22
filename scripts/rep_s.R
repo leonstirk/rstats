@@ -1,4 +1,6 @@
 
+source('scripts/das_data_preprocessing.R')
+
 rs_p <- repsaledata(das$net_sale_price, das$sale_date, das$QPID)
 names(rs_p)[1] <- "QPID"
 
