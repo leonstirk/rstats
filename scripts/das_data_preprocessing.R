@@ -76,7 +76,7 @@ gen_dummy <- function(v, lab) {
 
 # View(dummies)
 
-## Generate descriptives
+## Generate descriptives on the full sample
 
 # fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
 # fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
@@ -87,9 +87,35 @@ gen_dummy <- function(v, lab) {
 # rm(fs_means, fs_stdev)
 
 
+## Sample descriptives on area unit
+
+au_summ <- c('','','')
+
+au_ids <- levels(as.factor(das$area_unit_id))
+for (id in au_ids) {
+ au_id <- id
+ au_name <- das[which(das$area_unit_id == id),]$area_unit_name[1]
+ count <- nrow(das[which(das$area_unit_id == id),])
+ row <- cbind(au_id,au_name,count)
+ au_summ <- rbind(au_summ, row)
+}
+au_summ <- tail(au_summ, -1)
+au_summ <- data.frame(au_summ)
+
+au_summ$count <- as.numeric(as.character(au_summ$count))
+
+
 ## Subset on area unit
 
-das_caversham <- das[which(das$area_unit_id == '604210'),]
-# das_concord <- das[which(das$area_unit_id == '605920'),]
+# das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
+
+das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
+das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
+das_wakari <- das[which(das$area_unit_id == '603910'),]	   	 # 1287
+das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
+das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
+das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
+das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
+das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
 
 model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")

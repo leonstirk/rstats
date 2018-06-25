@@ -88,5 +88,3 @@ MPI <- c(MPI, exp(mean(TE$diff, na.rm = TRUE)))
   }
  }
 # }
-
-
