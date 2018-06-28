@@ -2,13 +2,13 @@ source('scripts/das_data_preprocessing.R')
 
 library('sm')
 
-a <- das_caversham
+a <- das_concord
 
 mean_summary <- a %>% group_by(sale_year) %>% dplyr::summarise(n_sale_year = n(), mean_ln_sale_price = mean(ln_sale_price), std_error = sd(ln_sale_price)/sqrt(n_sale_year))
 
 t_vec <- as.numeric(levels(as.factor(a$sale_year)))
 
-layout(matrix(seq(1,15,1),3,5)) # optional 12 graphs/page;
+# layout(matrix(seq(1,15,1),3,5)) # optional 12 graphs/page;
 
 MPI <- 0
 
@@ -60,17 +60,24 @@ matchmodelstring <- paste("treatment ~ ",model_lhs_vars)
 m_ps <- glm(matchmodelstring, family = binomial(), data = a_sub)
 prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
 
+## Calculate caliper as \sigma = [(\sigma_1^2 + sigma_0^2)/2]^0.5 as per Rosenbaum and Rubin (1985)
+
+caliper <- ((var(prs_df[which(prs_df$treatment == 0 ),]$pr_score) + var(prs_df[which(prs_df$treatment == 1 ),]$pr_score))/2)^0.5
+
+
 # Visual check of propensity score based distributional matching
 # Kernel density estimates of propensity scores by treatment (t0, t1)
 
-sm.density.compare(prs_df$pr_score, prs_df$treatment)
+# sm.density.compare(prs_df$pr_score, prs_df$treatment)
 
 
 
 # Execute matching algorithm
 a_sub_nomiss <- a_sub %>% dplyr::select(QPID, sale_id, sale_year, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
 
-mod_match <- matchit(treatment ~  bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + period_built + view_scope + view_type + ln_building_floor_area + ln_land_area, method = "nearest", data = a_sub_nomiss)
+# mod_match <- matchit(treatment ~  bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + period_built + view_scope + view_type + ln_building_floor_area + ln_land_area, method = "nearest", data = a_sub_nomiss)
+
+mod_match <- matchit(treatment ~ bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + period_built + view_scope + view_type + ln_building_floor_area + ln_land_area, method = "nearest", mahvars = c("bedrooms","bathrooms","carparks", "ln_building_floor_area","ln_land_area"), caliper = caliper, data = a_sub_nomiss)
 
 dta_m <- match.data(mod_match)
 
@@ -88,3 +95,8 @@ MPI <- c(MPI, exp(mean(TE$diff, na.rm = TRUE)))
   }
  }
 # }
+
+plot(MPI)
+
+View(data.frame(a_sub[rownames(mod_match$match.matrix),'pysical_address'],a_sub[mod_match$match.matrix,'pysical_address']))
+

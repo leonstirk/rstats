@@ -107,15 +107,15 @@ au_summ$count <- as.numeric(as.character(au_summ$count))
 
 ## Subset on area unit
 
-# das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
+das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 
-das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
-das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
-das_wakari <- das[which(das$area_unit_id == '603910'),]	   	 # 1287
-das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
-das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
-das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
-das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
+# das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
+# das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
+# das_wakari <- das[which(das$area_unit_id == '603910'),]	   	 # 1287
+# das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
+# das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
+# das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
+# das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
 das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
 
 model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")

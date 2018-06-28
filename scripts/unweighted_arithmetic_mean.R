@@ -1,6 +1,6 @@
 source('scripts/das_data_preprocessing.R')
 
-a <- das_mornington
+a <- das_caversham
 
 mean <- aggregate(a[, c('ln_sale_price', 'net_sale_price', 'ln_building_floor_area')], list(a$sale_year), mean)
 names(mean)[1] <- 'sale_year'
