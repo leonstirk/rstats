@@ -61,7 +61,7 @@ das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parki
 
 ## Generate dummy matrices
 
-gen_dummy <- function(v, lab) {
+genDummy <- function(v, lab) {
   f <- factor(v)
   labs <- paste(lab, levels(f)[c(-1)], sep = "")
   dummies <- model.matrix(~f)
@@ -70,9 +70,9 @@ gen_dummy <- function(v, lab) {
   return(dummies)
 }
 
-# gen_dummy(das$sale_year)
+# genDummy(das$sale_year)
 
-# dummies <- data.frame(cbind(gen_dummy(das$view_type, ""),gen_dummy(das$view_scope, "view_scope"),gen_dummy(das$contour, "contour"),gen_dummy(das$period_built, "period_built")))
+# dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope"),genDummy(das$contour, "contour"),genDummy(das$period_built, "period_built")))
 
 # View(dummies)
 
@@ -91,27 +91,38 @@ gen_dummy <- function(v, lab) {
 
 au_summ <- c('','','')
 
+getAUNameFromID <- function(data, id) {
+ return(data[which(data$area_unit_id == id),]$area_unit_name[1])
+}
+
+countByVar <- function(data, key, value) {
+ return(nrow(data[which(data[,key] == value),]))
+}
+
 au_ids <- levels(as.factor(das$area_unit_id))
 for (id in au_ids) {
- au_id <- id
- au_name <- das[which(das$area_unit_id == id),]$area_unit_name[1]
- count <- nrow(das[which(das$area_unit_id == id),])
- row <- cbind(au_id,au_name,count)
+ row <- cbind(id,getAUNameFromID(das,id),countByVar(das,"area_unit_id",id))
  au_summ <- rbind(au_summ, row)
 }
+
+rm(id,row)
+
 au_summ <- tail(au_summ, -1)
 au_summ <- data.frame(au_summ)
-
+names(au_summ) <- c('id','area_unit_name','count')
 au_summ$count <- as.numeric(as.character(au_summ$count))
 
-
 ## Subset on area unit
+
+subsetByVar <- function(data, key, value) {
+ return(data[which(data[,key] == value),])
+}
 
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 
 # das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
 # das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
-# das_wakari <- das[which(das$area_unit_id == '603910'),]	   	 # 1287
+# das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
 # das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
 # das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
 # das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
