@@ -1,7 +1,6 @@
 source('scripts/das_data_preprocessing.R')
 
 a <- das_caversham
-# a <- das_caversham[which(das_caversham$sale_year == 2001),]
 
 year.f <- factor(a$sale_year)
 dummies = model.matrix(~year.f)

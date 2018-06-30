@@ -4,6 +4,7 @@ library(MatchIt)
 library(dplyr)
 library(ggplot2)
 library(McSpatial)
+library(reshape2)
 
 setwd("/home/ubuntu/rstats")
 
@@ -111,6 +112,8 @@ au_summ <- tail(au_summ, -1)
 au_summ <- data.frame(au_summ)
 names(au_summ) <- c('id','area_unit_name','count')
 au_summ$count <- as.numeric(as.character(au_summ$count))
+
+au_names <- as.vector(au_summ$area_unit_name)
 
 ## Subset on area unit
 
