@@ -1,7 +1,7 @@
 source('scripts/das_data_preprocessing.R')
 
 getArithmeticMeanIndexSeries <- function(data_subset, variable, period) {
-  meanSeries <- aggregate(data_subset[, variable], list(data_subset[,period]), median)
+  meanSeries <- aggregate(data_subset[, variable], list(data_subset[,period]), mean)
   meanSeries <-  data.frame(meanSeries)
   names(meanSeries) <- c(period,variable)
   index <- (meanSeries[,variable] - meanSeries[1,variable])+1
@@ -28,14 +28,6 @@ iplot <- ggplot(data=meanIndexByAU, aes(x=year, y=value, color=variable)) + geom
 
 names(meanIndexByAU) <- c('year', 'area_unit_name', 'index')
 
-# constructLevelIndex <- function(series) {
-#  return(series/series[1])
-# }
-
-# constructLogIndex <- function(series) { 
-#   return(series - series[1])
-# }
-
-# countByYear <- function() {
-#  return(aggregate(a[,c('ln_sale_price')],list(a$sale_year),length)[,2]))
+# nSalesByPeriod <- function(data, period) {
+#  return(aggregate(data[,c('ln_sale_price')],list(data$sale_year),length)[,2]))
 # }

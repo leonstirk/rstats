@@ -55,9 +55,7 @@ das <- within(das, view_type <- relevel(view_type, ref = 3))
 
 das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","view_scope","view_type","ln_building_floor_area","ln_land_area")
 
-## das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","ln_building_floor_area","ln_land_area")
-
-
+# das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ln_building_floor_area","ln_land_area")
 
 
 ## Generate dummy matrices
@@ -74,6 +72,8 @@ genDummy <- function(v, lab) {
 # genDummy(das$sale_year)
 
 # dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope"),genDummy(das$contour, "contour"),genDummy(das$period_built, "period_built")))
+
+dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope")))
 
 # View(dummies)
 
@@ -133,3 +133,5 @@ das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
 
 model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
+
+nplot <- ggplot(data=das, aes(x=reorder(area_unit_name,area_unit_id,length))) + geom_bar() + theme(axis.text.x=element_text(angle = -90, hjust = 0))
