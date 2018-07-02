@@ -18,21 +18,9 @@ getDummyHedonicIndexSeries <- function(data_subset, modelstring) {
 
 dummy_hedonic_index_by_au <- c('year', levels(as.factor(das[,'sale_year'])))
 
-checkFactorLength <- function(v) {
- return(length(levels(as.factor(as.vector(subset[,v])))))
-}
-
 for(au in au_names) {
  subset <- subsetByVar(das_year_dummies, 'area_unit_name', au)
-
- factor_vars <- names(which(sapply(subset, class) == "factor"))
-
- factor_lengths <- sapply(factor_vars, checkFactorLength)
- null_factors <- as.vector(names(which(factor_lengths < 2)))
-
- l <- nrow(subset)
- z <- c(rep(0, times = l))
- subset[null_factors] <- z
+ subset <- eliminateSingleLevelFactors(subset)
 
  col <- c(au, getDummyHedonicIndexSeries(subset, modelstring))
  dummy_hedonic_index_by_au <- cbind(dummy_hedonic_index_by_au, col)

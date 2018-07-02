@@ -8,6 +8,37 @@ library(reshape2)
 
 setwd("/home/ubuntu/rstats")
 
+## Define functions
+
+getArithmeticMeanIndexSeries <- function(data_subset, variable, period) {
+  meanSeries <- aggregate(data_subset[, variable], list(data_subset[,period]), mean)
+  meanSeries <-  data.frame(meanSeries)
+  names(meanSeries) <- c(period,variable)
+  index <- (meanSeries[,variable] - meanSeries[1,variable])+1
+  return(index)
+}
+
+checkFactorLength <- function(data, v) {
+ return(length(levels(as.factor(as.vector(data[,v])))))
+}
+
+eliminateSingleLevelFactors <- function(df) {
+ factor_vars <- names(which(sapply(df, class) == "factor"))
+
+ factor_lengths <- sapply(factor_vars, function(x) {checkFactorLength(df, x)})
+ null_factors <- as.vector(names(which(factor_lengths < 2)))
+
+ l <- nrow(df)
+ z <- c(rep(0, times = l))
+ df[null_factors] <- z
+ return(df)
+}
+
+
+
+
+
+
 load("datasets/dud_allsales_2000to2015.Rda")
 
 das<-dud_allsales
@@ -55,8 +86,6 @@ das <- within(das, view_type <- relevel(view_type, ref = 3))
 
 das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","view_scope","view_type","ln_building_floor_area","ln_land_area")
 
-# das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ln_building_floor_area","ln_land_area")
-
 
 ## Generate dummy matrices
 
@@ -73,7 +102,7 @@ genDummy <- function(v, lab) {
 
 # dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope"),genDummy(das$contour, "contour"),genDummy(das$period_built, "period_built")))
 
-dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope")))
+# dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope")))
 
 # View(dummies)
 

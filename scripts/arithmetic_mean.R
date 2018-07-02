@@ -1,13 +1,5 @@
 source('scripts/das_data_preprocessing.R')
 
-getArithmeticMeanIndexSeries <- function(data_subset, variable, period) {
-  meanSeries <- aggregate(data_subset[, variable], list(data_subset[,period]), mean)
-  meanSeries <-  data.frame(meanSeries)
-  names(meanSeries) <- c(period,variable)
-  index <- (meanSeries[,variable] - meanSeries[1,variable])+1
-  return(index)
-}
-
 meanIndexByAU <- c('year', levels(as.factor(das[,'sale_year'])))
 
 for(au in au_names) {
