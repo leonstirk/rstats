@@ -10,6 +10,10 @@ setwd("/home/ubuntu/rstats")
 
 ## Define functions
 
+subsetByVar <- function(data, key, value) {
+ return(data[which(data[,key] == value),])
+}
+
 getArithmeticMeanIndexSeries <- function(data_subset, variable, period) {
   meanSeries <- aggregate(data_subset[, variable], list(data_subset[,period]), mean)
   meanSeries <-  data.frame(meanSeries)
@@ -55,6 +59,7 @@ das$ln_land_area <- log(das$land_area)
 
 # Rename variables
 names(das)[21] <- "view_scope"
+names(das)[33] <- "physical_address"
 
 # Drop variables
 v <- names(das) %in% c("sale_year.1")
@@ -143,12 +148,10 @@ names(au_summ) <- c('id','area_unit_name','count')
 au_summ$count <- as.numeric(as.character(au_summ$count))
 
 au_names <- as.vector(au_summ$area_unit_name)
+au_years <- as.vector(levels(as.factor(das$sale_year)))
+au_quarters <- as.vector(levels(as.factor(das$sale_quarter)))
 
 ## Subset on area unit
-
-subsetByVar <- function(data, key, value) {
- return(data[which(data[,key] == value),])
-}
 
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 
@@ -156,10 +159,14 @@ das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 # das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
 # das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
 # das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
-# das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
-# das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
+das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
+das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
 # das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
 das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
+
+das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
+das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
+das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
 
 model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
 
