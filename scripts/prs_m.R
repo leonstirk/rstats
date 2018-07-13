@@ -11,7 +11,7 @@ library('sm')
 
 
 
-a <- das
+a <- das_concord
 # for(au in au_names) {
 #  a <- subsetByVar(das, "area_unit_name", au)
 # }
@@ -28,20 +28,20 @@ MPI_table <- c(levels(as.factor(das[,'sale_year'])))
 
 ## Loop over each base year
 for(t0 in t_vec) {
-# t0 <- '2006'
+# t0 <- '2014'
 
 MPI <- 0
 
  ## Loop over each year pair
  for (t1 in t_vec) {
- # t1 <- '2008'
+ # t1 <- '2015'
 
  ## Only match where t0 != t1
  if(t0 != t1) {
 
    a_sub <- subset(a, a$sale_year == t0 | a$sale_year == t1)
    a_sub <- eliminateSingleLevelFactors(a_sub)
-   a_sub$treatment <- ifelse(a_sub$sale_year == t0, 0 ,1)
+   a_sub$treatment <- ifelse(a_sub$sale_year == t0,0,1)
 
    ## Non-covariate-adjusted (non-matched) difference in mean test for log net sale price between treatment and control groups
 
@@ -128,4 +128,3 @@ jplot <- ggplot(data=mean_summary, aes(x=sale_year, y=n_sale_year)) + geom_line(
 
 # matches <- data.frame(a_sub[rownames(mod_match$match.matrix),'physical_address'],a_sub[mod_match$match.matrix,'physical_address'])
 
-# names(matches) <- c('base', 'match')
