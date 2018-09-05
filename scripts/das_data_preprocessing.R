@@ -22,6 +22,14 @@ getArithmeticMeanIndexSeries <- function(data_subset, variable, period) {
   return(index)
 }
 
+getSampleSize <- function(data_subset, period) {
+  samplesize <- aggregate(data_subset[,1], list(data_subset[,period]), length)
+  samplesize <-  data.frame(samplesize)
+  names(samplesize) <- c(period, "n")
+  series <- (samplesize[,"n"])
+  return(series)
+}
+
 checkFactorLength <- function(data, v) {
  return(length(levels(as.factor(as.vector(data[,v])))))
 }
