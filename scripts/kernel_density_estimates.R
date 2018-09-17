@@ -12,7 +12,7 @@ xlabs <- das_vars[c(1,2,3,4,5,6,8,9,10,11)]
 # xlabs <- das_vars[c(1)]
 dates <- c('2002', '2008')
 
-layout(matrix(seq(1,12,1),3,4)) # optional 4 graphs/page
+layout(matrix(seq(1,12,1),3,4)) # optional 12 graphs/page
 
 for(xlab in xlabs) {
 

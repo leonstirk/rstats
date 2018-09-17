@@ -1,15 +1,9 @@
 
 
-
-
-
-
-
 #############################################################################
 ## Currently abandoned due to rank deficiency problem potentially making   ##
 ## this index totally fucking unusable in samples of even a moderate size. ##
 #############################################################################
-
 
 
 source('scripts/das_data_preprocessing.R')

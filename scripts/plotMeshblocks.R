@@ -31,7 +31,7 @@ area.points <- rename(area.points, c("long" = "NZMGlong", "lat" = "NZMGlat"))
 area.points$lat <- latlon$lat
 area.points$long <- latlon$lon
 
-ggmap(mapImage) +
+meshblockMap <- ggmap(mapImage) +
   geom_polygon(aes(x = long,
       y = lat,
       group = group),
