@@ -27,14 +27,14 @@ t_vec <- as.numeric(levels(as.factor(a$sale_year)))
 MPI_table <- c(levels(as.factor(das[,'sale_year'])))
 
 ## Loop over each base year
-for(t0 in t_vec) {
-# t0 <- '2014'
+# for(t0 in t_vec) {
+t0 <- '2014'
 
 MPI <- 0
 
  ## Loop over each year pair
- for (t1 in t_vec) {
- # t1 <- '2015'
+ # for (t1 in t_vec) {
+ t1 <- '2015'
 
  ## Only match where t0 != t1
  if(t0 != t1) {
@@ -107,24 +107,26 @@ prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_
 
    TE$diff <- TE$ln_sale_t1 - TE$ln_sale_t0
 
-   MPI <- c(MPI, exp(mean(TE$diff, na.rm = TRUE)))
+   # MPI <- c(MPI, exp(mean(TE$diff, na.rm = TRUE)))
 
-  }
- }
+   }
+  # }
 
-MPI_table <- cbind(MPI_table, MPI)
+# MPI_table <- cbind(MPI_table, MPI)
 
-}
+# }
 
-MPI_table <- data.frame(MPI_table)
-names(MPI_table) <- c('year', levels(as.factor(das[,'sale_year'])))
+# MPI_table <- data.frame(MPI_table)
+# names(MPI_table) <- c('year', levels(as.factor(das[,'sale_year'])))
 
-MPI_table <- melt(MPI_table, id.vars=c('year'))
-MPI_table$value <- as.numeric(MPI_table$value)
+# MPI_table <- melt(MPI_table, id.vars=c('year'))
+# MPI_table$value <- as.numeric(MPI_table$value)
 
-iplot <- ggplot(data=MPI_table, aes(x=year, y=value, color=variable)) + geom_line(aes(group = variable))
+# iplot <- ggplot(data=MPI_table, aes(x=year, y=value, color=variable)) + geom_line(aes(group = variable))
 
-jplot <- ggplot(data=mean_summary, aes(x=sale_year, y=n_sale_year)) + geom_line()
+# jplot <- ggplot(data=mean_summary, aes(x=sale_year, y=n_sale_year)) + geom_line()
 
-# matches <- data.frame(a_sub[rownames(mod_match$match.matrix),'physical_address'],a_sub[mod_match$match.matrix,'physical_address'])
+matches <- data.frame(a_sub[rownames(mod_match$match.matrix),'physical_address'],a_sub[mod_match$match.matrix,'physical_address'])
+names(matches) <- c('treatment', 'control')
 
+matches$exact <- ifelse(as.character(matches$treatment) == as.character(matches$control), 1, 0)
