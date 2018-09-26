@@ -94,11 +94,13 @@ das <- within(das, view_type <- relevel(view_type, ref = 3))
 
 
 
+############################
+## Set vector of variables #
+############################
 
-## Set vector of variables
+# das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","view_scope","view_type","ln_building_floor_area","ln_land_area")
 
-das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","view_scope","view_type","ln_building_floor_area","ln_land_area")
-
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area")
 
 ## Generate dummy matrices
 

@@ -24,13 +24,15 @@ MPI <- 0
  #############################
  for (t1 in t_vec) {
 
- ## Only match where t0 != t1
+ ##############################
+ ## Only match where t0 != t1 #
+ ##############################
  if(t0 != t1) {
 
-   ###################################################
-   ## 
-   ###################################################
-   a_sub <- subset(a, a$sale_year == t0 | a$sale_year == t1) %>% eliminateSingleLevelFactors()
+   ##########################################################
+   ## Subset regional data subset to the relevant year pair #
+   ##########################################################
+   a_sub <- subset(a, a$sale_year == t0 | a$sale_year == t1) # %>% eliminateSingleLevelFactors()
    a_sub$treatment <- ifelse(a_sub$sale_year == t0,0,1)
 
    ###################################################
@@ -38,49 +40,67 @@ MPI <- 0
    ###################################################
    a_sub_cov<-tail(das_vars,-1)
 
-   #############################################################################################################################
-   ## Non-covariate-adjusted (non-matched) difference in mean test for log net sale price between treatment and control groups #
-   #############################################################################################################################
+   #########################################################################################################################
+   ## Non-covariate-adjusted (non-matched) difference in mean test results for outcome variable (ln price) and covariates  #
+   #########################################################################################################################
    # t_test_output <- with(a_sub, t.test(ln_sale_price ~ sale_year))
 
-   a_sub_pretreatment_covariate_means <- a_sub %>% group_by(treatment) %>% dplyr::select(one_of(a_sub_cov)) %>% summarise_all(funs(mean(., na.rm = T)))
-   t_tests <- lapply(a_sub_cov, function(v) { t.test(a_sub[, v] ~ a_sub[, 'treatment']) })
-   a_sub_pretreatment_covariate_t_stats <- unlist(lapply(t_tests, function(v) { v$statistic }))
-   a_sub_pretreatment_covariate_p_values <- unlist(lapply(t_tests, function(v) { v$p.value }))
-   a_sub_pretreatment_covariate_sig_dummy <- ifelse(a_sub_pretreatment_covariate_p_values <= 0.05, 1, 0)
+   # a_sub_pretreatment_covariate_means <- a_sub %>% group_by(treatment) %>% dplyr::select(one_of(das_vars)) %>% summarise_all(funs(mean(., na.rm = T)))
+   # t_tests <- lapply(das_vars, function(v) { t.test(a_sub[, v] ~ a_sub[, 'treatment']) })
+   # a_sub_pretreatment_covariate_t_stats <- unlist(lapply(t_tests, function(v) { v$statistic }))
+   # a_sub_pretreatment_covariate_p_values <- unlist(lapply(t_tests, function(v) { v$p.value }))
+   # a_sub_pretreatment_covariate_sig_dummy <- ifelse(a_sub_pretreatment_covariate_p_values <= 0.05, 1, 0)
 
-   a_sub_pretreatment_cov_test_tables <- data.frame(a_sub_cov, a_sub_pretreatment_covariate_t_stats, a_sub_pretreatment_covariate_p_values, a_sub_pretreatment_covariate_sig_dummy)
+   # a_sub_pretreatment_cov_test_tables <- data.frame(das_vars, a_sub_pretreatment_covariate_t_stats, a_sub_pretreatment_covariate_p_values, a_sub_pretreatment_covariate_sig_dummy)
 
+   ########################
+   # Create model strings #
+   ########################
 
-
-
-   ## propensity score estimation
-
-   # model strings
    model_lhs_vars <- paste(a_sub_cov, collapse = " + ")
-   matchmodelstring <- paste("treatment ~ ",model_lhs_vars)
+   model_formula <- as.formula(paste("treatment ~ ",model_lhs_vars))
 
-   m_ps <- glm(matchmodelstring, family = binomial(), data = a_sub)
-prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
+   ###############################
+   ## Generate propensity scores #
+   ###############################
 
-   ## Calculate caliper as \sigma = [(\sigma_1^2 + sigma_0^2)/2]^0.5 as per Rosenbaum and Rubin (1985)
+   m_ps <- glm(model_formula, family = binomial(), data = a_sub)
+   prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
 
+   #####################################################################################################
+   ## Calculate caliper as \sigma = [(\sigma_1^2 + sigma_0^2)/2]^0.5 as per Rosenbaum and Rubin (1985) #
+   #####################################################################################################
    caliper <- ((var(prs_df[which(prs_df$treatment == 0 ),]$pr_score) + var(prs_df[which(prs_df$treatment == 1 ),]$pr_score))/2)^0.5
 
-
-   # Visual check of propensity score based distributional matching
-   # Kernel density estimates of propensity scores by treatment (t0, t1)
-
+   #######################################################################
+   ## Visual check of propensity score based distributional matching      #
+   ## Kernel density estimates of propensity scores by treatment (t0, t1) #
+   #######################################################################
    # sm.density.compare(prs_df$pr_score, prs_df$treatment)
 
 
-
-   # Execute matching algorithm
+   ###############################
+   ## Execute matching algorithm #
+   ###############################
    a_sub_nomiss <- a_sub %>% dplyr::select(QPID, sale_id, sale_year, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
 
-   # mod_match <- matchit(treatment ~  bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + period_built + view_scope + view_type + ln_building_floor_area + ln_land_area, method = "nearest", data = a_sub_nomiss)
+   ######################################################
+   ## Logit PRS nearest match without caliper #
+   ######################################################
+   # mod_match <- matchit(model_formula, distance = "logit", method = "nearest", data = a_sub_nomiss)
 
-   mod_match <- matchit(treatment ~ bedrooms + bathrooms + carparks + offstreet_parking + deck + ex_state_house + contour + period_built + view_scope + view_type + ln_building_floor_area + ln_land_area, method = "nearest", mahvars = c("bedrooms","bathrooms","carparks", "ln_building_floor_area","ln_land_area"), caliper = caliper, data = a_sub_nomiss)
+   ####################################################
+   ## Logit PRS nearest match, with caliper #
+   ####################################################
+
+   ########################################################
+   ## Mahalanobis distance nearest match without caliper #
+   ########################################################
+
+   ####################################################
+   ## Mahalanobis distance nearest match with caliper #
+   ####################################################
+   mod_match <- matchit(model_formula, distance = "mahalanobis", method = "nearest", data = a_sub_nomiss)
 
    dta_m <- match.data(mod_match)
 
