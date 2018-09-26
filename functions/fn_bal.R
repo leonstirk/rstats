@@ -1,3 +1,4 @@
+
 fn_bal <- function(dta, var) { dta$var <- dta[,var] 
   dta$treatment <- as.factor(dta$treatment) 
   support <- c(min(dta$var), max(dta$var)) 
