@@ -18,8 +18,6 @@ MPI_table <- c(levels(as.factor(das[,'sale_year'])))
 # for(t_C in t_vec) {
 t_C <- 2015
 
-MPI <- 0
-
  #############################
  ## Loop over each year pair #
  #############################
@@ -93,7 +91,7 @@ MPI <- 0
 
    TE$diff <- TE$ln_sale_t1 - TE$ln_sale_t0
 
-   MPI <- c(MPI, 1-exp(mean(TE$diff, na.rm = TRUE)))
+   MPI <- 1-exp(mean(TE$diff, na.rm = TRUE)))
 
    #############################################
    ## Find difference in means between T and C #

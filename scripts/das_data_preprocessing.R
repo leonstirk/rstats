@@ -5,6 +5,7 @@ library(dplyr)
 library(ggplot2)
 library(McSpatial)
 library(reshape2)
+library(zeligverse)
 
 setwd("/home/ubuntu/rstats")
 
