@@ -10,24 +10,27 @@ a <- das_concord
 mean_summary <- a %>% group_by(sale_year) %>% dplyr::summarise(n_sale_year = n(), mean_ln_sale_price = mean(ln_sale_price), std_error = sd(ln_sale_price)/sqrt(n_sale_year))
 
 t_vec <- as.numeric(levels(as.factor(a$sale_year)))
-MPI_table <- c(levels(as.factor(das[,'sale_year'])))
+index_table <- c(levels(as.factor(das[,'sale_year'])))
 
 #############################
 ## Loop over each base year #
 #############################
-# for(t_C in t_vec) {
-t_C <- 2015
+for(t_C in t_vec) {
+# t_C <- 2015
 
-MPI <- 0
+index <- vector()
 
  #############################
  ## Loop over each year pair #
  #############################
  for (t_T in t_vec) {
+ # t_T <- 2000
 
  ################################
  ## Only match where t_C != t_T #
  ################################
+
+ if(t_C == t_T) { diff <- 0 }
  if(t_C != t_T) {
 
    ##########################################################
@@ -88,17 +91,16 @@ MPI <- 0
    #####################################################################################################################################
    ## Find mean difference in matches (treatment variables are given by the "rownames" and control varibles are given by the "values") #
    #####################################################################################################################################
-   TE <- data.frame(m_data[m_out$match.matrix,"ln_sale_price"],m_data[rownames(m_out$match.matrix),"ln_sale_price"])
-   ifelse(t_C < t_T, names(TE) <- c('ln_sale_t0','ln_sale_t1'), names(TE) <- c('ln_sale_t1','ln_sale_t0'))
-
-   TE$diff <- TE$ln_sale_t1 - TE$ln_sale_t0
-
-   MPI <- c(MPI, 1-exp(mean(TE$diff, na.rm = TRUE)))
+   matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
+   # ifelse(t_C < t_T, names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1'), names(matched_price_pairs) <- c('sale_year_t1','ln_sale_price_t1','treatment_t1','sale_year_t0','ln_sale_price_t0','treatment_t0'))
+   names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1')
+   matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
+   diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
 
    #############################################
    ## Find difference in means between T and C #
    #############################################
-   exp(mean(m_data[which(m_data$treatment == 1),"ln_sale_price"]) - mean(m_data[which(m_data$treatment == 0),"ln_sale_price"]))
+   # exp(mean(m_data[which(m_data$treatment == 1),"ln_sale_price"]) - mean(m_data[which(m_data$treatment == 0),"ln_sale_price"]))
 
 
 
@@ -108,22 +110,30 @@ MPI <- 0
    #######################################################################
    # sm.density.compare(prs_df$pr_score, prs_df$treatment)
 
-
    }
+   index <- c(index, diff)
   }
 
-MPI_table <- cbind(MPI_table, MPI)
+####################
+## Normalise index #
+####################
+index <- index - index[1]
 
-# }
+#############################
+## Add index to index table #
+#############################
+index_table <- cbind(index_table, exp(index)*100)
 
-MPI_table <- data.frame(MPI_table)
-# names(MPI_table) <- c('year', levels(as.factor(das[,'sale_year'])))
-names(MPI_table) <- c('year', "2000")
+}
 
-MPI_table <- melt(MPI_table, id.vars=c('year'))
-MPI_table$value <- as.numeric(MPI_table$value)
+index_table <- data.frame(index_table)
+names(index_table) <- c('year', levels(as.factor(das[,'sale_year'])))
+# names(index_table) <- c('year', "2000")
 
-iplot <- ggplot(data=MPI_table, aes(x=year, y=value, color=variable)) + geom_line(aes(group = variable))
+index_table <- melt(index_table, id.vars=c('year'))
+index_table$value <- as.numeric(index_table$value)
+
+iplot <- ggplot(data=index_table, aes(x=year, y=value, color=variable)) + geom_line(aes(group = variable))
 
 jplot <- ggplot(data=mean_summary, aes(x=sale_year, y=n_sale_year)) + geom_line()
 
