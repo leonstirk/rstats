@@ -83,6 +83,16 @@ index <- vector()
    #######################################
    m_out <- matchit(model_formula, distance = "mahalanobis", method = "nearest", data = a_sub_nomiss)
 
+   ####################
+   ## Balance summary #
+   ####################
+   summary(m_out)
+   
+   z_out <- zelig(ln_sale_price ~ treatment + bedrooms + bathrooms + ln_building_floor_area + ln_land_area, model = "ls", data = m_data)
+   z_out <- setx(z_out, treatment = 0)
+   z_out <- setx(z_out, treatment = 1)
+   s_out <- sim(z_out, c_out, t_out)
+
    #####################
    ## Matched data set #
    #####################
