@@ -68,49 +68,70 @@ index <- vector()
    ###############################
    a_sub_nomiss <- a_sub %>% dplyr::select(QPID, sale_id, sale_year, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
 
-   ############################################
-   ## Logit PRS nearest match without caliper #
-   ############################################
+   ##############################################
+   ## Nearest match (logit PRS) without caliper #
+   ##############################################
    # m_out <- matchit(model_formula, distance = "logit", method = "nearest", data = a_sub_nomiss)
 
-   ##########################################
-   ## Logit PRS nearest match, with caliper #
-   ##########################################
+   ###########################################
+   ## Nearest match (logit PRS) with caliper #
+   ###########################################
    # m_out <- matchit(model_formula, distance = "logit", method = "nearest", caliper = caliper, data = a_sub_nomiss)
 
-   #######################################
-   ## Mahalanobis distance nearest match #
-   #######################################
+   ################################
+   ## Nearest match (mahalanobis) #
+   ################################
    m_out <- matchit(model_formula, distance = "mahalanobis", method = "nearest", data = a_sub_nomiss)
 
-   ####################
-   ## Balance summary #
-   ####################
-   summary(m_out)
-   
-   z_out <- zelig(ln_sale_price ~ treatment + bedrooms + bathrooms + ln_building_floor_area + ln_land_area, model = "ls", data = m_data)
-   z_out <- setx(z_out, treatment = 0)
-   z_out <- setx(z_out, treatment = 1)
-   s_out <- sim(z_out, c_out, t_out)
+   ########
+   ## CEM #
+   ########
+   # m_out <- matchit(model_formula, method = "cem", data = a_sub_nomiss)
 
    #####################
    ## Matched data set #
    #####################
    m_data <- match.data(m_out)
 
+   ####################
+   ## Balance summary #
+   ####################
+   b_sum <- summary(m_out)
+   b_sum_std <- summary(m_out, standardized = TRUE)
+   b_plot <- plot(m_out)
+   b_plot_sum <- plot(b_sum_std)
+
+   ###################
+   ## Zelig analysis #
+   ###################
+   # z_out <- zelig(ln_sale_price ~ treatment + bedrooms + bathrooms + ln_building_floor_area + ln_land_area, model = "ls", data = m_data)
+   # c_out <- setx(z_out, treatment = 0)
+   # t_out <- setx(z_out, treatment = 1)
+   # s_out <- sim(z_out, c_out, t_out)
+
    #####################################################################################################################################
    ## Find mean difference in matches (treatment variables are given by the "rownames" and control varibles are given by the "values") #
    #####################################################################################################################################
-   matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
+   # matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
    # ifelse(t_C < t_T, names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1'), names(matched_price_pairs) <- c('sale_year_t1','ln_sale_price_t1','treatment_t1','sale_year_t0','ln_sale_price_t0','treatment_t0'))
-   names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1')
-   matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
-   diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
+   # names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1')
+   # matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
+   # diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
 
    #############################################
    ## Find difference in means between T and C #
    #############################################
-   # exp(mean(m_data[which(m_data$treatment == 1),"ln_sale_price"]) - mean(m_data[which(m_data$treatment == 0),"ln_sale_price"]))
+   diff <- mean(m_data[which(m_data$treatment == 1),"ln_sale_price"]) - mean(m_data[which(m_data$treatment == 0),"ln_sale_price"])
+
+   # matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
+
+   # ifelse(t_C < t_T, names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1'), names(matched_price_pairs) <- c('sale_year_t1','ln_sale_price_t1','treatment_t1','sale_year_t0','ln_sale_price_t0','treatment_t0'))
+
+   # names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1')
+
+   # matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
+
+   # diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
 
 
 
