@@ -70,38 +70,52 @@ das$ln_land_area <- log(das$land_area)
 names(das)[21] <- "view_scope"
 names(das)[33] <- "physical_address"
 
-# Drop variables
-v <- names(das) %in% c("sale_year.1")
-das <- das[!v]
-rm(v)
-
 # Factor variable conversions
 das$property_ownership_type <- as.factor(das$property_ownership_type)
 das$wall_construction_material <- as.factor(das$wall_construction_material)
-das$view_type <- as.factor(das$view_type)
 das$period_built <- as.factor(das$period_built)
 das$contour <- as.factor(das$contour)
+
 das$view_scope <- as.factor(das$view_scope)
 das$view_type <- as.factor(das$view_type)
 
+
+## Dummy variables
+das$ex_state_house <- as.factor(das$ex_state_house)
 das$offstreet_parking <- as.factor(das$offstreet_parking)
 das$deck <- as.factor(das$deck)
-das$ex_state_house <- as.factor(das$ex_state_house)
 
 
 ## Relevel factors if needed
-
 das <- within(das, view_type <- relevel(view_type, ref = 3))
 
+## Dummy variable assignment for view
+## There are 7 dummies 'none', 'poor land', 'ok land', 'good land', 'poor water', 'ok water', 'good water'
+das$poor_land  <- ifelse(das$view_scope == 2 & das$view_type == "Focal Point Of view - Other", 1, 0)
+das$ok_land    <- ifelse(das$view_scope == 3 & das$view_type == "Focal Point Of view - Other", 1, 0)
+das$good_land  <- ifelse(das$view_scope == 4 & das$view_type == "Focal Point Of view - Other", 1, 0)
+das$poor_water <- ifelse(das$view_scope == 2 & das$view_type == "Focal Point Of view - Water", 1, 0)
+das$ok_water   <- ifelse(das$view_scope == 3 & das$view_type == "Focal Point Of view - Water", 1, 0)
+das$good_water <- ifelse(das$view_scope == 4 & das$view_type == "Focal Point Of view - Water", 1, 0)
+
+## THIS MIGHT BE BETTER AS JUST "VIEW SCOPE" PLUS A "WATER" DUMMY ####
+
+
+# Drop variables
+v <- names(das) %in% c("sale_year.1", "view_type", "view_scope")
+das <- das[!v]
+rm(v)
 
 
 ############################
 ## Set vector of variables #
 ############################
 
-# das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","view_scope","view_type","ln_building_floor_area","ln_land_area")
+# das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
 
 das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area")
+
+vars <- c("QPID","area_unit_id","area_unit_name","sale_year","ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
 
 ## Generate dummy matrices
 
@@ -114,11 +128,13 @@ genDummy <- function(v, lab) {
   return(dummies)
 }
 
-# genDummy(das$sale_year)
-
-# dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope"),genDummy(das$contour, "contour"),genDummy(das$period_built, "period_built")))
-
-# dummies <- data.frame(cbind(genDummy(das$view_type, ""),genDummy(das$view_scope, "view_scope")))
+# dummies <- data.frame(cbind(
+#  genDummy(das$sale_year, "sale_year"),
+#  genDummy(das$contour, "contour"),
+#  genDummy(das$period_built, "period_built"),
+#  genDummy(das$property_ownership_type, "ownership_type"),
+#  genDummy(das$wall_construction_material, "wall_material")
+# ))
 
 # View(dummies)
 
