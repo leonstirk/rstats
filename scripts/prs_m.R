@@ -96,10 +96,10 @@ index <- vector()
    ####################
    ## Balance summary #
    ####################
-   b_sum <- summary(m_out)
-   b_sum_std <- summary(m_out, standardized = TRUE)
-   b_plot <- plot(m_out)
-   b_plot_sum <- plot(b_sum_std)
+   # b_sum <- summary(m_out)
+   # b_sum_std <- summary(m_out, standardized = TRUE)
+   # b_plot <- plot(m_out)
+   # b_plot_sum <- plot(b_sum_std)
 
    ###################
    ## Zelig analysis #
@@ -112,16 +112,16 @@ index <- vector()
    #####################################################################################################################################
    ## Find mean difference in matches (treatment variables are given by the "rownames" and control varibles are given by the "values") #
    #####################################################################################################################################
-   # matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
-   # ifelse(t_C < t_T, names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1'), names(matched_price_pairs) <- c('sale_year_t1','ln_sale_price_t1','treatment_t1','sale_year_t0','ln_sale_price_t0','treatment_t0'))
-   # names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1')
-   # matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
-   # diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
+   matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
+   ifelse(t_C < t_T, names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1'), names(matched_price_pairs) <- c('sale_year_t1','ln_sale_price_t1','treatment_t1','sale_year_t0','ln_sale_price_t0','treatment_t0'))
+   names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1')
+   matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
+   diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
 
    #############################################
    ## Find difference in means between T and C #
    #############################################
-   diff <- mean(m_data[which(m_data$treatment == 1),"ln_sale_price"]) - mean(m_data[which(m_data$treatment == 0),"ln_sale_price"])
+   # diff <- mean(m_data[which(m_data$treatment == 1),"ln_sale_price"]) - mean(m_data[which(m_data$treatment == 0),"ln_sale_price"])
 
    # matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
 
