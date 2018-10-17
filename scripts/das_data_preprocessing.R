@@ -1,5 +1,6 @@
 rm(list=ls(all=TRUE))
 
+library(data.table)
 library(MatchIt)
 library(dplyr)
 library(ggplot2)
@@ -61,22 +62,27 @@ genDummy <- function(v, lab) {
 ############################################################################################################
 ############################################################################################################
 
+load("datasets/dud_allsales_2000to2018.Rda")
 
-load("datasets/dud_allsales_2000to2015.Rda")
+#####################################################################################################
+## Remove a few observations that had no data we can find this data using the missing_data.R script #
+#####################################################################################################
+das <- na.omit(data.table(das), cols=c(1:47,51:53))
+das <- data.frame(das)
 
-# Factor variable conversions
-das$property_ownership_type <- as.factor(das$property_ownership_type)
-das$wall_construction_material <- as.factor(das$wall_construction_material)
-das$period_built <- as.factor(das$period_built)
-das$contour <- as.factor(das$contour)
+# # Factor variable conversions
+# das$property_ownership_type <- as.factor(das$property_ownership_type)
+# das$wall_construction_material <- as.factor(das$wall_construction_material)
+# das$period_built <- as.factor(das$period_built)
+# das$contour <- as.factor(das$contour)
 
-das$view_scope <- as.factor(das$view_scope)
-das$view_type <- as.factor(das$view_type)
+# das$view_scope <- as.factor(das$view_scope)
+# das$view_type <- as.factor(das$view_type)
 
-## Dummy variables
-das$ex_state_house <- as.factor(das$ex_state_house)
-das$offstreet_parking <- as.factor(das$offstreet_parking)
-das$deck <- as.factor(das$deck)
+# ## Dummy variables
+# das$ex_state_house <- as.factor(das$ex_state_house)
+# das$offstreet_parking <- as.factor(das$offstreet_parking)
+# das$deck <- as.factor(das$deck)
 
 # ## Relevel factors if needed
 # das <- within(das, view_type <- relevel(view_type, ref = 3))

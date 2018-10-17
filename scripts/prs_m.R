@@ -66,7 +66,7 @@ index <- vector()
    ###############################
    ## Execute matching algorithm #
    ###############################
-   a_sub_nomiss <- a_sub %>% dplyr::select(QPID, sale_id, sale_year, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
+   a_sub_nomiss <- a_sub %>% dplyr::select(qpid, sale_id, sale_year, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
 
    ##############################################
    ## Nearest match (logit PRS) without caliper #

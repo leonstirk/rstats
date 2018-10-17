@@ -11,6 +11,12 @@ rm(v)
 
 names(das) <- c('qpid','sale_id','sale_date','sale_quarter','cpi','sale_year','net_sale_price','real_net_sale_price','ln_real_net_sale_price','ln_net_sale_price','physical_address','meshblock_id','area_unit_id','area_unit_name','land_area','building_floor_area','year_built','carparks','bedrooms','bathrooms','legal_description','ct_no','period_built','contour','property_ownership_type','view_type','wall_construction_material','deck','view_scope','good_water','good_land','decade_built','offstreet_parking','sale_year','nearest_census_year','median_income','homeowner_rate','hnzc_rate','median_age','european','ex_state_house','wkt_geom','lon_gd2000_x','lat_gd2000_y','full_roa','sale_order','sale_max','sale_multiplier','years_between','yearly_gain')
 
+i <- sapply(das, is.factor)
+das[i] <- lapply(das[i], as.character)
+
+das[das==''] <- NA
+das$land_area[das$land_area==0] <- NA
+
 # Date variable conversion
 das$sale_date <- as.Date(das$sale_date)
 
