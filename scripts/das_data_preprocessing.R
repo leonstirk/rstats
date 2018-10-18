@@ -70,14 +70,15 @@ load("datasets/dud_allsales_2000to2018.Rda")
 das <- na.omit(data.table(das), cols=c(1:47,51:53))
 das <- data.frame(das)
 
-# # Factor variable conversions
-# das$property_ownership_type <- as.factor(das$property_ownership_type)
-# das$wall_construction_material <- as.factor(das$wall_construction_material)
-# das$period_built <- as.factor(das$period_built)
-# das$contour <- as.factor(das$contour)
+## Factor variable conversions #
+f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope")
+das[f] <- lapply(das[f],as.factor)
+rm(f)
 
-# das$view_scope <- as.factor(das$view_scope)
-# das$view_type <- as.factor(das$view_type)
+## Character conversions #
+c <- c("qpid","sale_id")
+das[c] <- lapply(das[c],as.character)
+rm(c)
 
 # ## Dummy variables
 # das$ex_state_house <- as.factor(das$ex_state_house)
@@ -98,92 +99,94 @@ das <- data.frame(das)
 
 # ## THIS MIGHT BE BETTER AS JUST "VIEW SCOPE" PLUS A "WATER" DUMMY ####
 
-# # Drop variables
-# v <- names(das) %in% c("view_type", "view_scope")
-# das <- das[!v]
-# rm(v)
+# Drop variables
+v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no")
+das <- das[!v]
+rm(v)
 
 
-# ############################
-# ## Set vector of variables #
-# ############################
+############################
+## Set vector of variables #
+############################
 
-# # das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
+names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "ln_real_net_sale_price"
 
-# das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area")
+# das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
 
-# vars <- c("qpid","area_unit_id","area_unit_name","sale_year","ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area")
 
-# ## Generate dummy matrices
+vars <- c("qpid","area_unit_id","area_unit_name","sale_year","ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
 
-
-# # dummies <- data.frame(cbind(
-# #  genDummy(das$sale_year, "sale_year"),
-# #  genDummy(das$contour, "contour"),
-# #  genDummy(das$period_built, "period_built"),
-# #  genDummy(das$property_ownership_type, "ownership_type"),
-# #  genDummy(das$wall_construction_material, "wall_material")
-# # ))
-
-# # View(dummies)
-
-# ## Generate descriptives on the full sample
-
-# # fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
-# # fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
-
-# # fs_ds <- data.frame(fs_means, fs_stdev)
-# # fs_ds <- format.data.frame(fs_ds, scientific=FALSE)
-
-# # rm(fs_means, fs_stdev)
+## Generate dummy matrices
 
 
-# ## Sample descriptives on area unit
+# dummies <- data.frame(cbind(
+#  genDummy(das$sale_year, "sale_year"),
+#  genDummy(das$contour, "contour"),
+#  genDummy(das$period_built, "period_built"),
+#  genDummy(das$property_ownership_type, "ownership_type"),
+#  genDummy(das$wall_construction_material, "wall_material")
+# ))
 
-# au_summ <- c('','','')
+# View(dummies)
 
-# getAUNameFromID <- function(data, id) {
-#  return(data[which(data$area_unit_id == id),]$area_unit_name[1])
-# }
+## Generate descriptives on the full sample
 
-# countByVar <- function(data, key, value) {
-#  return(nrow(data[which(data[,key] == value),]))
-# }
+# fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
+# fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
 
-# au_ids <- levels(as.factor(das$area_unit_id))
-# for (id in au_ids) {
-#  row <- cbind(id,getAUNameFromID(das,id),countByVar(das,"area_unit_id",id))
-#  au_summ <- rbind(au_summ, row)
-# }
+# fs_ds <- data.frame(fs_means, fs_stdev)
+# fs_ds <- format.data.frame(fs_ds, scientific=FALSE)
 
-# rm(id,row)
+# rm(fs_means, fs_stdev)
 
-# au_summ <- tail(au_summ, -1)
-# au_summ <- data.frame(au_summ)
-# names(au_summ) <- c('id','area_unit_name','count')
-# au_summ$count <- as.numeric(as.character(au_summ$count))
 
-# au_names <- as.vector(au_summ$area_unit_name)
-# au_years <- as.vector(levels(as.factor(das$sale_year)))
-# au_quarters <- as.vector(levels(as.factor(das$sale_quarter)))
+## Sample descriptives on area unit
 
-# ## Subset on area unit
+au_summ <- c('','','')
 
-# das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
+getAUNameFromID <- function(data, id) {
+ return(data[which(data$area_unit_id == id),]$area_unit_name[1])
+}
 
-# # das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
-# # das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
-# # das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
-# # das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
-# das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
-# das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
-# # das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
-# das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
+countByVar <- function(data, key, value) {
+ return(nrow(data[which(data[,key] == value),]))
+}
 
-# das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
-# das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
-# das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
+au_ids <- levels(as.factor(das$area_unit_id))
+for (id in au_ids) {
+ row <- cbind(id,getAUNameFromID(das,id),countByVar(das,"area_unit_id",id))
+ au_summ <- rbind(au_summ, row)
+}
 
-# model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
+rm(id,row)
 
-# nplot <- ggplot(data=das, aes(x=reorder(area_unit_name,area_unit_id,length))) + geom_bar() + theme(axis.text.x=element_text(angle = -90, hjust = 0))
+au_summ <- tail(au_summ, -1)
+au_summ <- data.frame(au_summ)
+names(au_summ) <- c('id','area_unit_name','count')
+au_summ$count <- as.numeric(as.character(au_summ$count))
+
+au_names <- as.vector(au_summ$area_unit_name)
+au_years <- as.vector(levels(as.factor(das$sale_year)))
+au_quarters <- as.vector(levels(as.factor(das$sale_quarter)))
+
+## Subset on area unit
+
+das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
+
+# das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
+# das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
+# das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
+# das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
+das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
+das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
+# das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
+das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
+
+das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
+das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
+das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
+
+model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
+
+nplot <- ggplot(data=das, aes(x=reorder(area_unit_name,area_unit_id,length))) + geom_bar() + theme(axis.text.x=element_text(angle = -90, hjust = 0))

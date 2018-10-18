@@ -16,7 +16,6 @@ index_table <- c(levels(as.factor(das[,'sale_year'])))
 ## Loop over each base year #
 #############################
 for(t_C in t_vec) {
-# t_C <- 2015
 
 index <- vector()
 
@@ -24,7 +23,6 @@ index <- vector()
  ## Loop over each year pair #
  #############################
  for (t_T in t_vec) {
- # t_T <- 2000
 
  ################################
  ## Only match where t_C != t_T #
@@ -51,43 +49,16 @@ index <- vector()
    model_lhs_vars <- paste(a_sub_cov, collapse = " + ")
    model_formula <- as.formula(paste("treatment ~ ",model_lhs_vars))
 
-   ###############################
-   ## Generate propensity scores #
-   ###############################
-
-   m_ps <- glm(model_formula, family = binomial(), data = a_sub)
-   prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
-
-   #####################################################################################################
-   ## Calculate caliper as \sigma = [(\sigma_1^2 + sigma_0^2)/2]^0.5 as per Rosenbaum and Rubin (1985) #
-   #####################################################################################################
-   caliper <- ((var(prs_df[which(prs_df$treatment == 0 ),]$pr_score) + var(prs_df[which(prs_df$treatment == 1 ),]$pr_score))/2)^0.5
-
-   ###############################
-   ## Execute matching algorithm #
-   ###############################
+   ###############################################################
+   ## Omit any observations with missing values in the variables #
+   ###############################################################
    a_sub_nomiss <- a_sub %>% dplyr::select(qpid, sale_id, sale_year, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
-
-   ##############################################
-   ## Nearest match (logit PRS) without caliper #
-   ##############################################
-   # m_out <- matchit(model_formula, distance = "logit", method = "nearest", data = a_sub_nomiss)
-
-   ###########################################
-   ## Nearest match (logit PRS) with caliper #
-   ###########################################
-   # m_out <- matchit(model_formula, distance = "logit", method = "nearest", caliper = caliper, data = a_sub_nomiss)
 
    ################################
    ## Nearest match (mahalanobis) #
    ################################
    m_out <- matchit(model_formula, distance = "mahalanobis", method = "nearest", data = a_sub_nomiss)
-
-   ########
-   ## CEM #
-   ########
-   # m_out <- matchit(model_formula, method = "cem", data = a_sub_nomiss)
-
+ 
    #####################
    ## Matched data set #
    #####################
@@ -118,27 +89,10 @@ index <- vector()
    matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
    diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
 
-   #############################################
-   ## Find difference in means between T and C #
-   #############################################
-   # diff <- mean(m_data[which(m_data$treatment == 1),"ln_sale_price"]) - mean(m_data[which(m_data$treatment == 0),"ln_sale_price"])
-
-   # matched_price_pairs <- data.frame(m_data[m_out$match.matrix,c("sale_year","ln_sale_price","treatment")],m_data[rownames(m_out$match.matrix),c("sale_year","ln_sale_price","treatment")])
-
-   # ifelse(t_C < t_T, names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1'), names(matched_price_pairs) <- c('sale_year_t1','ln_sale_price_t1','treatment_t1','sale_year_t0','ln_sale_price_t0','treatment_t0'))
-
-   # names(matched_price_pairs) <- c('sale_year_t0','ln_sale_price_t0','treatment_t0','sale_year_t1','ln_sale_price_t1','treatment_t1')
-
-   # matched_price_pairs$diff <- matched_price_pairs$ln_sale_price_t1 - matched_price_pairs$ln_sale_price_t0
-
-   # diff <- mean(matched_price_pairs$diff, na.rm = TRUE)
-
-
-
-   ##########################################################################
-   ## Visual check of propensity score based distributional matching        #
+   #######################################################################
+   ## Visual check of propensity score based distributional matching      #
    ## Kernel density estimates of propensity scores by treatment (t_C, t_T) #
-   ##########################################################################
+   #######################################################################
    # sm.density.compare(prs_df$pr_score, prs_df$treatment)
 
    }
