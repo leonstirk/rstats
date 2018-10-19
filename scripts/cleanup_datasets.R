@@ -19,7 +19,7 @@ das$land_area[das$land_area==0] <- NA
 das$building_floor_area[das$building_floor_area==0] <- NA
 
 # Date variable conversion
-das$sale_date <- as.Date(das$sale_date)
+das$sale_date <- as.Date(das$sale_date, '%d/%m/%Y')
 
 # Create new variables
 das$age_at_time_of_sale <- das$sale_year - das$year_built

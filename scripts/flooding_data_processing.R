@@ -1,5 +1,3 @@
-setwd('/home/ubuntu/rstats/')
-
 source('scripts/das_data_preprocessing.R')
 
 flood_analysis_treatment <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("Forbury","South Dunedin","St Kilda West","St Kilda Central"))])))
@@ -29,3 +27,18 @@ flood_analysis_treatment <- c(flood_analysis_treatment[which(!(flood_analysis_tr
 flood_analysis_control <- c(flood_analysis_control[which(!(flood_analysis_control %in% c(kilda_east_mb)))],musselburgh_mb,south_dunedin_mb)
 
 flood_sub <- das[which(das$meshblock_id %in% c(flood_analysis_control, flood_analysis_treatment)),]
+
+flood_sub$flooded <- ifelse(flood_sub$meshblock_id %in% flood_analysis_treatment,1,0)
+
+
+## Set time blocking
+
+flood_date <- as.Date('2015-06-03')
+years <- 3
+days <- years*365
+start_date <- flood_date - days
+end_date <- flood_date + days
+
+flood_sub <- subset(flood_sub,sale_date>start_date & sale_date<end_date)
+flood_sub$after_flood <- ifelse(flood_sub$sale_date<flood_date,0,1)
+
