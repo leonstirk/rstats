@@ -113,7 +113,7 @@ names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "
 
 # das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
 
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area")
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "age_at_time_of_sale")
 
 vars <- c("qpid","area_unit_id","area_unit_name","sale_year","ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
 

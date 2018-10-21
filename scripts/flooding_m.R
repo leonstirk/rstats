@@ -3,8 +3,10 @@
 before_flood <- subset(flood_sub, after_flood == 0)
 after_flood <- subset(flood_sub, after_flood ==1)
 
+# a_sub <- before_flood
 a_sub <- after_flood
 a_sub$treatment <- ifelse(a_sub$flooded == 1,0,1)
+# a_sub$treatment <- a_sub$flood_prone
 
 ###################################################
 ## Define covariate space for pre-matched samples #
@@ -50,12 +52,19 @@ m_data <- match.data(m_out)
 # s_out <- sim(z_out, c_out, t_out)
 
 
-
+# before_flood_m <- m_data
 # before_flood_m$after <- 0
+
+# after_flood_m <- m_data
 # after_flood_m$after <- 1
 
 # diff_in_diff_data <- rbind(before_flood_m, after_flood_m)
 # diff_in_diff_data$flooded <- 1-diff_in_diff_data$treatment
 
-# fit <- lm(ln_sale_price ~ after + flooded + after*flooded + bedrooms + bathrooms + ln_land_area + ln_building_floor_area, data=diff_in_diff_data)
+# diff_in_diff_data$flood_prone <- diff_in_diff_data$treatment
+
+# diff_in_diff_model_formula <- as.formula(paste("ln_sale_price ~ after + flooded + after*flooded + ",model_lhs_vars))
+# diff_in_diff_model_formula <- as.formula(paste("ln_sale_price ~ after + flood_prone + after*flood_prone + ",model_lhs_vars))
+
+# fit <- lm(diff_in_diff_model_formula, data=diff_in_diff_data)
 # summary(fit)
