@@ -1,22 +1,24 @@
-# source('scripts/flooding_data_processing.R')
+source('scripts/flooding_data_processing.R')
 
 before_flood <- subset(flood_sub, after_flood == 0)
-after_flood <- subset(flood_sub, after_flood ==1)
+after_flood <- subset(flood_sub, after_flood == 1)
 
-# a_sub <- before_flood
-a_sub <- after_flood
-a_sub$treatment <- ifelse(a_sub$flooded == 1,0,1)
-# a_sub$treatment <- a_sub$flood_prone
+ldf <- list(before_flood, after_flood)
+
+ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- 1-df$flooded }))
+# ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- df$flood_prone })
+
+matchSamples <- function(das_vars, a_sub) {
 
 ###################################################
 ## Define covariate space for pre-matched samples #
 ###################################################
-a_sub_cov<-tail(das_vars,-1)
+a_sub_cov <- tail(das_vars,-1)
 
 ###############################################################
 ## Omit any observations with missing values in the variables #
 ###############################################################
-a_sub_nomiss <- a_sub %>% dplyr::select(qpid, sale_id, sale_year, ln_sale_price, treatment, one_of(a_sub_cov)) %>% na.omit()
+a_sub_nomiss <- a_sub %>% dplyr::select(qpid, sale_id, sale_year, ln_sale_price, treatment, after_flood, flooded, one_of(a_sub_cov)) %>% na.omit()
 
 ########################
 # Create model strings #
@@ -24,6 +26,7 @@ a_sub_nomiss <- a_sub %>% dplyr::select(qpid, sale_id, sale_year, ln_sale_price,
 
 model_lhs_vars <- paste(a_sub_cov, collapse = " + ")
 model_formula <- as.formula(paste("treatment ~ ",model_lhs_vars))
+zelig_model_formula <- as.formula(paste("ln_sale_price ~ treatment + ",model_lhs_vars))
 
 ################################
 ## Nearest match (mahalanobis) #
@@ -46,17 +49,17 @@ m_data <- match.data(m_out)
 ###################
 ## Zelig analysis #
 ###################
-# z_out <- zelig(ln_sale_price ~ treatment + bedrooms + bathrooms + ln_building_floor_area + ln_land_area, model = "ls", data = m_data)
+# z_out <- zelig(zelig_model_formula, model = "ls", data = m_data)
 # c_out <- setx(z_out, treatment = 0)
 # t_out <- setx(z_out, treatment = 1)
 # s_out <- sim(z_out, c_out, t_out)
 
+return(m_data)
 
-# before_flood_m <- m_data
-# before_flood_m$after <- 0
+}
 
-# after_flood_m <- m_data
-# after_flood_m$after <- 1
+lapply(ldf, function(df) { matchSamples(das_vars, df) })
+
 
 # diff_in_diff_data <- rbind(before_flood_m, after_flood_m)
 # diff_in_diff_data$flooded <- 1-diff_in_diff_data$treatment
