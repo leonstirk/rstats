@@ -28,10 +28,24 @@ model_lhs_vars <- paste(a_sub_cov, collapse = " + ")
 model_formula <- as.formula(paste("treatment ~ ",model_lhs_vars))
 zelig_model_formula <- as.formula(paste("ln_sale_price ~ treatment + ",model_lhs_vars))
 
+###############################
+## Generate propensity scores #
+###############################
+
+m_ps <- glm(model_formula, family = binomial(), data = a_sub)
+prs_df <- data.frame(pr_score = predict(m_ps, type = "response"), treatment = m_ps$model$treatment)
+
+#####################################################################################################
+## Calculate caliper as \sigma = [(\sigma_1^2 + sigma_0^2)/2]^0.5 as per Rosenbaum and Rubin (1985) #
+#####################################################################################################
+caliper <- 0.25*((var(prs_df[which(prs_df$treatment == 0 ),]$pr_score) + var(prs_df[which(prs_df$treatment == 1 ),]$pr_score))/2)^0.5
+
 ################################
 ## Nearest match (mahalanobis) #
 ################################ 
-m_out <- matchit(model_formula, distance = "mahalanobis", method = "nearest", data = a_sub_nomiss)
+# m_out <- matchit(model_formula, distance = "mahalanobis", method = "nearest", data = a_sub_nomiss)
+
+m_out <- matchit(model_formula, distance = "logit", method = "nearest", caliper = caliper, data = a_sub_nomiss)
 
 #####################
 ## Matched data set #

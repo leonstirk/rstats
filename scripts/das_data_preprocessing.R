@@ -2,6 +2,7 @@ rm(list=ls(all=TRUE))
 
 library(data.table)
 library(MatchIt)
+library(plyr)
 library(dplyr)
 library(ggplot2)
 library(McSpatial)
@@ -51,16 +52,16 @@ eliminateSingleLevelFactors <- function(df) {
 }
 
 genDummy <- function(v, lab) {
-  f <- factor(v)
-  labs <- paste(lab, levels(f)[c(-1)], sep = "")
+  f <- as.factor(v)
+  labs <- paste(lab, levels(f)[c(-1)], sep = "_")
   dummies <- model.matrix(~f)
   dummies <-  data.frame(dummies)[c(-1)]
   names(dummies) <- labs
   return(dummies)
 }
 
-############################################################################################################
-############################################################################################################
+#######################################################################################################################################
+#######################################################################################################################################
 
 load("datasets/dud_allsales_2000to2018.Rda")
 
@@ -70,56 +71,80 @@ load("datasets/dud_allsales_2000to2018.Rda")
 das <- na.omit(data.table(das), cols=c(1:47,51:53))
 das <- data.frame(das)
 
+################################
 ## Factor variable conversions #
+################################
 f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa")
 das[f] <- lapply(das[f],as.factor)
 rm(f)
 
+##########################
 ## Character conversions #
+##########################
 c <- c("qpid","sale_id")
 das[c] <- lapply(das[c],as.character)
 rm(c)
 
-##############################
-## Relevel factors if needed #
-##############################
-das <- within(das, view_type <- relevel(view_type, ref = 3))
+####################
+## Relevel factors #
+####################
+das <- within(das, period_built <- relevel(period_built, ref = 2))
+das <- within(das, contour <- relevel(contour, ref = 2))
 
-# Drop variables
+#########################
+## Rename factor levels #
+#########################
+tmp <- levels(das$property_ownership_type)
+das$property_ownership_type <- mapvalues(das$property_ownership_type, from = tmp, to = c("core_crown", "crown", "local_authority","private_company","private_individual"))
+
+tmp <- levels(das$contour)
+das$contour <- mapvalues(das$contour, from = tmp, to = c("level","easy_moderate","steep"))
+
+tmp <- levels(das$period_built)
+das$period_built <- mapvalues(das$period_built, from = tmp, to = c("1800s","1900to70","70s80s","post2000"))
+
+rm(tmp)
+
+###################
+## Drop variables #
+###################
+
 v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no","view_type","view_scope")
 das <- das[!v]
 rm(v)
 
-##################
-## Add variables #
-##################
-
-
-
-
-############################
-## Set vector of variables #
-############################
-
-names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "ln_net_sale_price"
-
-# das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
-
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "age_at_time_of_sale", "arterial_street", "ex_state_house", "carparks", "deck")
 
 ############################################
 ## Generate dummy matrices and bind to das #
 ############################################
 
-# dummies <- data.frame(cbind(
-# #  genDummy(das$sale_year, "sale_year"),
-#  genDummy(das$period_built, "period_built"),
+dummies <- data.frame(cbind(
+#  genDummy(das$sale_year, "sale_year"),
+ genDummy(das$period_built, "period_built")
 #  genDummy(das$contour, "contour"),
-#  genDummy(das$property_ownership_type, "ownership_type")
-# #  genDummy(das$wall_construction_material, "wall_material")
-# ))
-# dummy_vars_from_gen <- names(dummies)
-# das <- cbind(das,dummies)
+#  genDummy(das$property_ownership_type, "ownership_type"),
+#  genDummy(das$wall_construction_material, "wall_material")
+))
+dummy_vars_from_gen <- names(dummies)
+das <- cbind(das,dummies)
+
+
+##########################################################################
+## Set ln_sale_price to use nominal or inflation adjusted log sale price #
+##########################################################################
+names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "ln_net_sale_price"
+
+############################
+## Set vector of variables #
+############################
+
+## Index
+# das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "age_at_time_of_sale")
+
+## Flooding
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
+
+mah_vars <- c("bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate")
 
 #############################################
 ## Generate descriptives on the full sample #
