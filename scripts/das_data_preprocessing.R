@@ -71,7 +71,7 @@ das <- na.omit(data.table(das), cols=c(1:47,51:53))
 das <- data.frame(das)
 
 ## Factor variable conversions #
-f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope")
+f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa")
 das[f] <- lapply(das[f],as.factor)
 rm(f)
 
@@ -80,57 +80,50 @@ c <- c("qpid","sale_id")
 das[c] <- lapply(das[c],as.character)
 rm(c)
 
-# ## Dummy variables
-# das$ex_state_house <- as.factor(das$ex_state_house)
-# das$offstreet_parking <- as.factor(das$offstreet_parking)
-# das$deck <- as.factor(das$deck)
-
-# ## Relevel factors if needed
-# das <- within(das, view_type <- relevel(view_type, ref = 3))
-
-# ## Dummy variable assignment for view
-# ## There are 7 dummies 'none', 'poor land', 'ok land', 'good land', 'poor water', 'ok water', 'good water'
-# das$poor_land  <- ifelse(das$view_scope == 2 & das$view_type == "Focal Point Of view - Other", 1, 0)
-# das$ok_land    <- ifelse(das$view_scope == 3 & das$view_type == "Focal Point Of view - Other", 1, 0)
-# das$good_land  <- ifelse(das$view_scope == 4 & das$view_type == "Focal Point Of view - Other", 1, 0)
-# das$poor_water <- ifelse(das$view_scope == 2 & das$view_type == "Focal Point Of view - Water", 1, 0)
-# das$ok_water   <- ifelse(das$view_scope == 3 & das$view_type == "Focal Point Of view - Water", 1, 0)
-# das$good_water <- ifelse(das$view_scope == 4 & das$view_type == "Focal Point Of view - Water", 1, 0)
-
-# ## THIS MIGHT BE BETTER AS JUST "VIEW SCOPE" PLUS A "WATER" DUMMY ####
+##############################
+## Relevel factors if needed #
+##############################
+das <- within(das, view_type <- relevel(view_type, ref = 3))
 
 # Drop variables
-v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no")
+v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no","view_type","view_scope")
 das <- das[!v]
 rm(v)
+
+##################
+## Add variables #
+##################
+
+
 
 
 ############################
 ## Set vector of variables #
 ############################
 
-names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "ln_real_net_sale_price"
+names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "ln_net_sale_price"
 
 # das_vars <- c("ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
 
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "age_at_time_of_sale")
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "age_at_time_of_sale", "arterial_street", "ex_state_house", "carparks", "deck")
 
-vars <- c("qpid","area_unit_id","area_unit_name","sale_year","ln_sale_price","bedrooms","bathrooms","carparks","offstreet_parking","deck","ex_state_house","contour","period_built","poor_land","ok_land","good_land","poor_water","ok_water","good_water","ln_building_floor_area","ln_land_area")
-
-## Generate dummy matrices
-
+############################################
+## Generate dummy matrices and bind to das #
+############################################
 
 # dummies <- data.frame(cbind(
-#  genDummy(das$sale_year, "sale_year"),
-#  genDummy(das$contour, "contour"),
+# #  genDummy(das$sale_year, "sale_year"),
 #  genDummy(das$period_built, "period_built"),
-#  genDummy(das$property_ownership_type, "ownership_type"),
-#  genDummy(das$wall_construction_material, "wall_material")
+#  genDummy(das$contour, "contour"),
+#  genDummy(das$property_ownership_type, "ownership_type")
+# #  genDummy(das$wall_construction_material, "wall_material")
 # ))
+# dummy_vars_from_gen <- names(dummies)
+# das <- cbind(das,dummies)
 
-# View(dummies)
-
-## Generate descriptives on the full sample
+#############################################
+## Generate descriptives on the full sample #
+#############################################
 
 # fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
 # fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
@@ -140,8 +133,9 @@ vars <- c("qpid","area_unit_id","area_unit_name","sale_year","ln_sale_price","be
 
 # rm(fs_means, fs_stdev)
 
-
-## Sample descriptives on area unit
+#####################################
+## Sample descriptives on area unit #
+#####################################
 
 au_summ <- c('','','')
 

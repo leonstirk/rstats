@@ -57,17 +57,14 @@ m_data <- match.data(m_out)
 return(m_data)
 
 }
+#######################################################################################################################
+## The two elements in the below list are the matched samples for the "before the flood" and "after the flood" groups #
+#######################################################################################################################
+ldf_m <- lapply(ldf, function(df) { matchSamples(das_vars, df) })
 
-lapply(ldf, function(df) { matchSamples(das_vars, df) })
+dnd_data <- rbind(ldf_m[[1]],ldf_m[[2]])
 
+dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood + flooded + after_flood*flooded + ",model_lhs_vars))
+# dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood + flood_prone + after_flood*flood_prone + ",model_lhs_vars))
 
-# diff_in_diff_data <- rbind(before_flood_m, after_flood_m)
-# diff_in_diff_data$flooded <- 1-diff_in_diff_data$treatment
-
-# diff_in_diff_data$flood_prone <- diff_in_diff_data$treatment
-
-# diff_in_diff_model_formula <- as.formula(paste("ln_sale_price ~ after + flooded + after*flooded + ",model_lhs_vars))
-# diff_in_diff_model_formula <- as.formula(paste("ln_sale_price ~ after + flood_prone + after*flood_prone + ",model_lhs_vars))
-
-# fit <- lm(diff_in_diff_model_formula, data=diff_in_diff_data)
-# summary(fit)
+fit <- lm(dnd_model_formula, data=dnd_data)
