@@ -15,6 +15,14 @@ setwd("/home/ubuntu/rstats")
 ## Define functions #
 #####################
 
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+new_summary  <- function(lmcoef, digits) {
+    coefs <- as.data.frame(lmcoef)
+    coefs[] <- lapply(coefs, function(x) specify_decimal(x, digits))
+    coefs
+}
+
 subsetByVar <- function(data, key, value) {
  return(data[which(data[,key] == value),])
 }
@@ -74,7 +82,7 @@ das <- data.frame(das)
 ################################
 ## Factor variable conversions #
 ################################
-f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa")
+f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","decade_built","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa")
 das[f] <- lapply(das[f],as.factor)
 rm(f)
 
@@ -101,7 +109,7 @@ tmp <- levels(das$contour)
 das$contour <- mapvalues(das$contour, from = tmp, to = c("level","easy_moderate","steep"))
 
 tmp <- levels(das$period_built)
-das$period_built <- mapvalues(das$period_built, from = tmp, to = c("1800s","1900to70","70s80s","post2000"))
+das$period_built <- mapvalues(das$period_built, from = tmp, to = c("1800s","1900to70s","80s90s","post2000"))
 
 rm(tmp)
 
@@ -113,17 +121,17 @@ v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no","vi
 das <- das[!v]
 rm(v)
 
-
 ############################################
 ## Generate dummy matrices and bind to das #
 ############################################
 
 dummies <- data.frame(cbind(
-#  genDummy(das$sale_year, "sale_year"),
- genDummy(das$period_built, "period_built")
-#  genDummy(das$contour, "contour"),
-#  genDummy(das$property_ownership_type, "ownership_type"),
-#  genDummy(das$wall_construction_material, "wall_material")
+    #  genDummy(das$sale_year, "sale_year"),
+    genDummy(das$period_built, "period_built")
+    #  genDummy(das$decade_built, "decade_built")
+    #  genDummy(das$contour, "contour"),
+    #  genDummy(das$property_ownership_type, "ownership_type"),
+    #  genDummy(das$wall_construction_material, "wall_material")
 ))
 dummy_vars_from_gen <- names(dummies)
 das <- cbind(das,dummies)
@@ -132,7 +140,7 @@ das <- cbind(das,dummies)
 ##########################################################################
 ## Set ln_sale_price to use nominal or inflation adjusted log sale price #
 ##########################################################################
-names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "ln_net_sale_price"
+names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_real_net_sale_price"
 
 ############################
 ## Set vector of variables #
@@ -142,9 +150,9 @@ names(das)[names(das) == "ln_real_net_sale_price"] <- "ln_sale_price" # OR set "
 # das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "age_at_time_of_sale")
 
 ## Flooding
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
 
-mah_vars <- c("bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate")
+mah_vars <- c("bedrooms", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 
 #############################################
 ## Generate descriptives on the full sample #
