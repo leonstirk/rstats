@@ -16,6 +16,7 @@ das[das==''] <- NA
 das$land_area[das$land_area==0] <- NA
 das$building_floor_area[das$building_floor_area==0] <- NA
 das$year_built[das$year_built==0] <- NA
+das$decade_built[das$decade_built==0] <- NA
 
 # Date variable conversion
 das$sale_date <- as.Date(das$sale_date, '%d/%m/%Y')

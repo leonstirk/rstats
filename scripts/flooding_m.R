@@ -50,39 +50,41 @@ matchSamples <- function(das_vars, a_sub) {
   ################################ 
   m_out <- matchit(model_formula, distance = "logit", method = "nearest", caliper = caliper, data = a_sub_nomiss, mahvars = mah_vars)
 
-  #####################
-  ## Matched data set #
-  #####################
-  m_data <- match.data(m_out)
-
-  ####################
-  ## Balance summary #
-  ####################
-  # b_sum <- summary(m_out)
-  # b_sum_std <- summary(m_out, standardize = TRUE)
-  # b_plot <- plot(m_out)
-  # b_plot_sum <- plot(b_sum_std)
-
-  ###################
-  ## Zelig analysis #
-  ###################
-  # z_out <- zelig(zelig_model_formula, model = "ls", data = m_data)
-  # c_out <- setx(z_out, treatment = 0)
-  # t_out <- setx(z_out, treatment = 1)
-  # s_out <- sim(z_out, c_out, t_out)
-
-  return(m_data)
+  return(m_out)
 
 }
 #######################################################################################################################
 ## The two elements in the below list are the matched samples for the "before the flood" and "after the flood" groups #
 #######################################################################################################################
-ldf_m <- lapply(ldf, function(df) { matchSamples(das_vars, df) })
+ldf_m_out <- lapply(ldf, function(df) { matchSamples(das_vars, df) })
+ldf_m_data <- lapply(ldf_m_out, match.data)
 
-dnd_data <- rbind(ldf_m[[1]],ldf_m[[2]])
+ldf_m_matches <- lapply(ldf_m_out, function(m_out) { na.omit(data.frame(match.data(m_out)[m_out$match.matrix,das_vars],match.data(m_out)[rownames(m_out$match.matrix),das_vars])) })
+
+
+
+
+dnd_data <- rbind(ldf_m_data[[1]],ldf_m_data[[2]])
 
 dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood + flooded + after_flood*flooded + ",model_lhs_vars))
 # dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood + flood_prone + after_flood*flood_prone + ",model_lhs_vars))
 
 fit <- lm(dnd_model_formula, data=dnd_data)
 raw_fit <- lm(dnd_model_formula, data=flood_sub)
+
+
+####################
+## Balance summary #
+####################
+## b_sum <- summary(m_out)
+## b_sum_std <- summary(m_out, standardize = TRUE)
+## b_plot <- plot(m_out)
+## b_plot_sum <- plot(b_sum_std)
+
+###################
+## Zelig analysis #
+###################
+## z_out <- zelig(zelig_model_formula, model = "ls", data = m_data)
+## c_out <- setx(z_out, treatment = 0)
+## t_out <- setx(z_out, treatment = 1)
+## s_out <- sim(z_out, c_out, t_out)

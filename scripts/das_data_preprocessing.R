@@ -147,10 +147,10 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ############################
 
 ## Index
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "deck", dummy_vars_from_gen)
+## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "deck", dummy_vars_from_gen)
 
 ## Flooding
-## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
 
 mah_vars <- c("bedrooms", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 
@@ -195,23 +195,22 @@ au_summ$count <- as.numeric(as.character(au_summ$count))
 
 au_names <- as.vector(au_summ$area_unit_name)
 au_years <- as.vector(levels(as.factor(das$sale_year)))
-au_quarters <- as.vector(levels(as.factor(das$sale_quarter)))
+## au_quarters <- as.vector(levels(as.factor(das$sale_quarter)))
 
 ## Subset on area unit
 
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
-
-# das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
-# das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
-# das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
-# das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
-das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
-das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
-# das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
-das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
-das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
-das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
-das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
+## das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
+## das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
+## das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
+## das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
+## das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
+## das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
+## das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
+## das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
+## das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
+## das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
+## das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
 
 model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
 
