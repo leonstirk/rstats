@@ -147,10 +147,10 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ############################
 
 ## Index
-# das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "ln_building_floor_area", "ln_land_area", "median_income", "homeowner_rate", "age_at_time_of_sale")
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "deck", dummy_vars_from_gen)
 
 ## Flooding
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
+## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
 
 mah_vars <- c("bedrooms", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 
@@ -209,7 +209,6 @@ das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
 das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
 # das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
 das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
-
 das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
 das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
 das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709

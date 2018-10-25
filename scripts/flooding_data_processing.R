@@ -32,6 +32,13 @@ musselburgh_mb <- c(as.character(seq(2934000,2934700,100),'2935400'))
 flood_analysis_treatment <- c(flood_analysis_treatment[which(!(flood_analysis_treatment %in% c(kilda_west_mb, kilda_central_mb, south_dunedin_mb)))],st_clair_mb)
 flood_analysis_control <- c(flood_analysis_control[which(!(flood_analysis_control %in% c(kilda_east_mb)))],musselburgh_mb,south_dunedin_mb)
 
+##################################
+## Assign treatment dummy to das #
+##################################
+
+das$flooded <- ifelse(das$meshblock_id %in% flood_analysis_treatment,1,0)
+das$flood_prone <- ifelse(das$meshblock_id %in% flood_analysis_control,1,0)
+
 ######################				   
 ## Set time blocking #
 ######################
@@ -42,25 +49,14 @@ days <- years*365
 start_date <- flood_date - days
 end_date <- flood_date + days
 
-# flood_sub <- subset(das,sale_date>start_date & sale_date<end_date)
-# flood_sub$after_flood <- ifelse(flood_sub$sale_date<flood_date,0,1)
+flood_sub <- subset(das,sale_date>start_date & sale_date<end_date)
+flood_sub$after_flood <- ifelse(flood_sub$sale_date<flood_date,0,1)
+flood_sub$after_flood <- as.factor(flood_sub$after_flood)
 
 ############################
 ## Add arterial road dummy #
 ############################
 
-## arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Forbury Road","Hillside Road","King Edward Street","Macandrew Road","Musselburgh Rise","Prince Albert Road","Queens Drive","Victoria Road")
-## flood_sub$arterial_street <- ifelse(flood_sub$full_roa %in% arterial_road_vec,1,0)
+arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Forbury Road","Hillside Road","King Edward Street","Macandrew Road","Musselburgh Rise","Prince Albert Road","Queens Drive","Victoria Road")
+flood_sub$arterial_street <- ifelse(flood_sub$full_roa %in% arterial_road_vec,1,0)
 
-###########################
-## Assign treatment dummy #
-###########################
-
-das$flooded <- ifelse(das$meshblock_id %in% flood_analysis_treatment,1,0)
-das$flood_prone <- ifelse(das$meshblock_id %in% flood_analysis_control,1,0)
-
-## flood_sub <- flood_sub[which(flood_sub$meshblock_id %in% c(flood_analysis_control, flood_analysis_treatment)),]
-## flood_sub$flooded <- ifelse(flood_sub$meshblock_id %in% flood_analysis_treatment,1,0)
-
-## flood_sub <- flood_sub[which(!(flood_sub$meshblock_id %in% flood_analysis_treatment)),]
-## flood_sub$flood_prone <- ifelse(flood_sub$meshblock_id %in% flood_analysis_control,1,0)

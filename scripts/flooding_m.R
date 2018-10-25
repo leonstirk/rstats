@@ -1,5 +1,10 @@
 source('scripts/flooding_data_processing.R')
 
+flood_sub_tainui_forbury <- subset(flood_sub, flooded == 1 | flood_prone == 1)
+flood_sub_tainui_dudall <- subset(flood_sub, flooded == 0)
+
+flood_sub <- flood_sub_tainui_forbury
+
 before_flood <- subset(flood_sub, after_flood == 0)
 after_flood <- subset(flood_sub, after_flood == 1)
 
@@ -43,7 +48,6 @@ matchSamples <- function(das_vars, a_sub) {
   ################################
   ## Nearest match (mahalanobis) #
   ################################ 
-  # m_out <- matchit(model_formula, distance = "mahalanobis", method = "nearest", data = a_sub_nomiss)
   m_out <- matchit(model_formula, distance = "logit", method = "nearest", caliper = caliper, data = a_sub_nomiss, mahvars = mah_vars)
 
   #####################
