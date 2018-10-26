@@ -14,7 +14,7 @@ for(au in au_names) {
 
 n_sum_dcast <- dcast(n_sum, formula = au_name~sale_year,fun.aggregate = sum,value.var = "n_sale_year")
 
-# print(xtable(n_sum_dcast, type = "latex"))
+print(xtable(n_sum_dcast, type = "latex"))
 
 binWidth <- 15
 h <- hist(n_sum$n_sale_year, col="gray", xlab = "", labels = FALSE, w=binWidth)

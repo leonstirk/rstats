@@ -159,10 +159,13 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "deck", dummy_vars_from_gen)
 
 ## Flooding
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
+## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
+
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", dummy_vars_from_gen)
 
 mah_vars <- c("bedrooms", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 
+exact_vars <- c("bedrooms", "bathrooms", "arterial_street", dummy_vars_from_gen)
 
 ## Subset on area unit #
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
@@ -183,3 +186,7 @@ model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
 
 ## Import functions #
 source('functions/match_samples.R')
+
+## Other shit
+
+au_names <- levels(das$area_unit_name)

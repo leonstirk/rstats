@@ -25,6 +25,8 @@ ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- 1-
 ## Do matching on before_flood and after_flood groups #
 ldf_m_out <- lapply(ldf, function(df) { matchSamples(das_vars, df) })
 
+break
+
 ## Matched sample data
 ldf_m_data <- lapply(ldf_m_out, match.data)
 
@@ -50,10 +52,9 @@ lfit_clean <- lapply(lfit, function(fit) {clean_summary(fit$coefficients,4)})
 ####################
 ## Balance summary #
 ####################
-## b_sum <- summary(m_out)
-## b_sum_std <- summary(m_out, standardize = TRUE)
-## b_plot <- plot(m_out)
-## b_plot_sum <- plot(b_sum_std)
+l_bal_sum <- lapply(ldf_m_out, summary)
+## l_bal_plot <- lapply(ldf_m_out, plot)
+## l_bal_plot_sum <- lapply(ldf_m_out, function(m_out) { plot(summary(m_out, standardize=TRUE)) })
 
 ###################
 ## Zelig analysis #
