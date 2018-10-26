@@ -159,11 +159,9 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "deck", dummy_vars_from_gen)
 
 ## Flooding
-## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
+das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
 
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", dummy_vars_from_gen)
-
-mah_vars <- c("bedrooms", "building_floor_area", "land_area", "median_income", "homeowner_rate")
+mah_vars <- c("bedrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 
 exact_vars <- c("bedrooms", "bathrooms", "arterial_street", dummy_vars_from_gen)
 

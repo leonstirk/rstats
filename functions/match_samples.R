@@ -14,10 +14,15 @@ matchSamples <- function(das_vars, a_sub) {
     ## Calculate caliper as \sigma = [(\sigma_1^2 + sigma_0^2)/2]^0.5 as per Rosenbaum and Rubin (1985) #
     caliper <- 0.25*((var(prs_df[which(prs_df$treatment == 0 ),]$pr_score) + var(prs_df[which(prs_df$treatment == 1 ),]$pr_score))/2)^0.5
 
-    ## Nearest match (mahalanobis) #
+    ## MATCH #
     ## m_out <- matchit(match_model_formula, method = "nearest", distance = "logit", caliper = caliper, data = noMiss(a_sub), mahvars = mah_vars)
     m_out <- matchit(match_model_formula, method = "nearest", distance = "mahalanobis", data = noMiss(a_sub), exact = exact_vars)
-    
-    return(m_out)
 
+    ## Matched sample data
+    m_data <- match.data(m_out)
+
+    ## Matched sample matches
+    m_match <- na.omit(data.frame(match.data(m_out)[m_out$match.matrix,das_vars],match.data(m_out)[rownames(m_out$match.matrix),das_vars]))
+    
+    return(list(m_out, m_data, m_match))
 }
