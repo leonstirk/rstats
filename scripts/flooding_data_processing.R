@@ -52,11 +52,3 @@ end_date <- flood_date + days
 flood_sub <- subset(das,sale_date>start_date & sale_date<end_date)
 flood_sub$after_flood <- ifelse(flood_sub$sale_date<flood_date,0,1)
 flood_sub$after_flood <- as.factor(flood_sub$after_flood)
-
-############################
-## Add arterial road dummy #
-############################
-
-arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Forbury Road","Hillside Road","King Edward Street","Macandrew Road","Musselburgh Rise","Prince Albert Road","Queens Drive","Victoria Road")
-flood_sub$arterial_street <- ifelse(flood_sub$full_roa %in% arterial_road_vec,1,0)
-

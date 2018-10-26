@@ -17,7 +17,7 @@ setwd("/home/ubuntu/rstats")
 
 specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
 
-new_summary  <- function(lmcoef, digits) {
+clean_summary  <- function(lmcoef, digits) {
     coefs <- as.data.frame(lmcoef)
     coefs[] <- lapply(coefs, function(x) specify_decimal(x, digits))
     coefs
@@ -121,6 +121,15 @@ v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no","vi
 das <- das[!v]
 rm(v)
 
+##################
+## Add variables #
+##################
+
+## Arterial road dummy
+arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Castle Street","Corstophine Road","Cumberland Street","Eglinton Road","Forbury Road","George Street","Great King Street","Highgate","High Street","Hillside Road","Kaikorai Valley Road","Kenmure Road","King Edward Street","Macandrew Road","Mailer Street","Main South Road","Maitland Street","Malvern Street","Musselburgh Rise","North Road","Opoho Road","Pine Hill Road","Prince Albert Road","Queens Drive","South Road","Stevenson Road","Victoria Road")
+das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
+
+
 ############################################
 ## Generate dummy matrices and bind to das #
 ############################################
@@ -154,51 +163,8 @@ das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_fl
 
 mah_vars <- c("bedrooms", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 
-#############################################
-## Generate descriptives on the full sample #
-#############################################
 
-# fs_means <- sapply(das[das_vars], mean, na.rm=TRUE)
-# fs_stdev <- sapply(das[das_vars], sd, na.rm=TRUE)
-
-# fs_ds <- data.frame(fs_means, fs_stdev)
-# fs_ds <- format.data.frame(fs_ds, scientific=FALSE)
-
-# rm(fs_means, fs_stdev)
-
-#####################################
-## Sample descriptives on area unit #
-#####################################
-
-au_summ <- c('','','')
-
-getAUNameFromID <- function(data, id) {
- return(data[which(data$area_unit_id == id),]$area_unit_name[1])
-}
-
-countByVar <- function(data, key, value) {
- return(nrow(data[which(data[,key] == value),]))
-}
-
-au_ids <- levels(as.factor(das$area_unit_id))
-for (id in au_ids) {
- row <- cbind(id,getAUNameFromID(das,id),countByVar(das,"area_unit_id",id))
- au_summ <- rbind(au_summ, row)
-}
-
-rm(id,row)
-
-au_summ <- tail(au_summ, -1)
-au_summ <- data.frame(au_summ)
-names(au_summ) <- c('id','area_unit_name','count')
-au_summ$count <- as.numeric(as.character(au_summ$count))
-
-au_names <- as.vector(au_summ$area_unit_name)
-au_years <- as.vector(levels(as.factor(das$sale_year)))
-## au_quarters <- as.vector(levels(as.factor(das$sale_quarter)))
-
-## Subset on area unit
-
+## Subset on area unit #
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 ## das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
 ## das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
@@ -212,6 +178,8 @@ das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 ## das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
 ## das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
 
+## Define model variables #
 model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
 
-nplot <- ggplot(data=das, aes(x=reorder(area_unit_name,area_unit_id,length))) + geom_bar() + theme(axis.text.x=element_text(angle = -90, hjust = 0))
+## Import functions #
+source('functions/match_samples.R')
