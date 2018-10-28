@@ -72,6 +72,7 @@ genDummy <- function(v, lab) {
 #######################################################################################################################################
 
 load("datasets/dud_allsales_2000to2018.Rda")
+og_das <- das
 
 #####################################################################################################
 ## Remove a few observations that had no data we can find this data using the missing_data.R script #
@@ -163,7 +164,7 @@ das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_fl
 
 mah_vars <- c("bedrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 
-exact_vars <- c("bedrooms", "bathrooms", "arterial_street", dummy_vars_from_gen)
+exact_vars <- c("bathrooms", "arterial_street", dummy_vars_from_gen)
 
 ## Subset on area unit #
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
