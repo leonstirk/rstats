@@ -72,7 +72,7 @@ genDummy <- function(v, lab) {
 #######################################################################################################################################
 
 load("datasets/dud_allsales_2000to2018.Rda")
-og_das <- das
+## og_das <- das
 
 #####################################################################################################
 ## Remove a few observations that had no data we can find this data using the missing_data.R script #
@@ -94,12 +94,6 @@ c <- c("qpid","sale_id")
 das[c] <- lapply(das[c],as.character)
 rm(c)
 
-####################
-## Relevel factors #
-####################
-das <- within(das, period_built <- relevel(period_built, ref = 2))
-das <- within(das, contour <- relevel(contour, ref = 2))
-
 #########################
 ## Rename factor levels #
 #########################
@@ -107,10 +101,10 @@ tmp <- levels(das$property_ownership_type)
 das$property_ownership_type <- mapvalues(das$property_ownership_type, from = tmp, to = c("core_crown", "crown", "local_authority","private_company","private_individual"))
 
 tmp <- levels(das$contour)
-das$contour <- mapvalues(das$contour, from = tmp, to = c("level","easy_moderate","steep"))
+das$contour <- mapvalues(das$contour, from = tmp, to = c("easy_moderate","level","steep"))
 
 tmp <- levels(das$period_built)
-das$period_built <- mapvalues(das$period_built, from = tmp, to = c("1800s","1900to70s","80s90s","post2000"))
+das$period_built <- mapvalues(das$period_built, from = tmp, to = c("1900to70s","1800s","80s90s","post2000"))
 
 rm(tmp)
 
@@ -137,9 +131,11 @@ das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
 
 dummies <- data.frame(cbind(
     #  genDummy(das$sale_year, "sale_year"),
-    genDummy(das$period_built, "period_built")
+    genDummy(das$bedrooms, "bedrooms"),
+    genDummy(das$bathrooms, "bathrooms"),
+    genDummy(das$period_built, "period_built"),
+    genDummy(das$contour, "contour")
     #  genDummy(das$decade_built, "decade_built")
-    #  genDummy(das$contour, "contour"),
     #  genDummy(das$property_ownership_type, "ownership_type"),
     #  genDummy(das$wall_construction_material, "wall_material")
 ))
@@ -157,14 +153,12 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ############################
 
 ## Index
-## das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "deck", dummy_vars_from_gen)
 
 ## Flooding
-das_vars <- c("ln_sale_price", "bedrooms", "bathrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "deck", dummy_vars_from_gen)
-
-mah_vars <- c("bedrooms", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate")
-
-exact_vars <- c("bathrooms", "arterial_street", dummy_vars_from_gen)
+das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
+mah_vars <- c("carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate")
+exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
+model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)")
 
 ## Subset on area unit #
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
@@ -180,12 +174,12 @@ das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 ## das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
 ## das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
 
-## Define model variables #
-model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
+## Define model formulae #
+model_all <- paste(tail(model_vars,-1), collapse = " + ")
+model_mah <- paste(mah_vars, collapse = " + ")
 
 ## Import functions #
 source('functions/match_samples.R')
 
 ## Other shit
-
 au_names <- levels(das$area_unit_name)

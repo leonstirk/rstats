@@ -1,5 +1,13 @@
 source('scripts/das_data_preprocessing.R')
 
+## Remove student area units from analysis (homeowner_rate < 0.46) #
+tmp <- 0.46
+homeowner_rates<-sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$homeowner_rate)})
+student_areas <- names(homeowner_rates[homeowner_rates<0.46])
+das <- das[which(!(das$area_unit_name %in% student_areas)),]
+rm(tmp)
+
+
 ######################################
 ## Define rough area unit boundaries #
 ######################################
@@ -37,7 +45,7 @@ flood_analysis_control <- c(flood_analysis_control[which(!(flood_analysis_contro
 ##################################
 
 das$flooded <- ifelse(das$meshblock_id %in% flood_analysis_treatment,1,0)
-das$flood_prone <- ifelse(das$meshblock_id %in% flood_analysis_control,1,0)
+das$flood_prone <- ifelse(das$meshblock_id %in% c(flood_analysis_control, flood_analysis_treatment),1,0)
 
 ######################				   
 ## Set time blocking #
