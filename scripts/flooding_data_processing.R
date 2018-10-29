@@ -12,8 +12,8 @@ rm(tmp)
 ## Define rough area unit boundaries #
 ######################################
 
-flood_analysis_treatment <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("Forbury","South Dunedin","St Kilda West","St Kilda Central"))])))
-flood_analysis_control <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("St Kilda East"))])))
+flood_analysis_forbury <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("Forbury","South Dunedin","St Kilda West","St Kilda Central"))])))
+flood_analysis_tainui <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("St Kilda East"))])))
 
 ##########################################
 ## Tidy up boundaries at meshblock level #
@@ -37,15 +37,16 @@ kilda_east_mb <- c('2952600')
 ## Musselburgh Vector
 musselburgh_mb <- c(as.character(seq(2934000,2934700,100),'2935400'))
 
-flood_analysis_treatment <- c(flood_analysis_treatment[which(!(flood_analysis_treatment %in% c(kilda_west_mb, kilda_central_mb, south_dunedin_mb)))],st_clair_mb)
-flood_analysis_control <- c(flood_analysis_control[which(!(flood_analysis_control %in% c(kilda_east_mb)))],musselburgh_mb,south_dunedin_mb)
+flood_analysis_forbury <- c(flood_analysis_forbury[which(!(flood_analysis_forbury %in% c(kilda_west_mb, kilda_central_mb, south_dunedin_mb)))],st_clair_mb)
+flood_analysis_tainui <- c(flood_analysis_tainui[which(!(flood_analysis_tainui %in% c(kilda_east_mb)))],musselburgh_mb,south_dunedin_mb)
 
 ##################################
 ## Assign treatment dummy to das #
 ##################################
 
-das$flooded <- ifelse(das$meshblock_id %in% flood_analysis_treatment,1,0)
-das$flood_prone <- ifelse(das$meshblock_id %in% c(flood_analysis_control, flood_analysis_treatment),1,0)
+das$flooded <- ifelse(das$meshblock_id %in% flood_analysis_forbury,1,0)
+das$flood_prone <- ifelse(das$meshblock_id %in% c(flood_analysis_forbury, flood_analysis_tainui),1,0)
+das$tainui <- ifelse(das$meshblock_id %in% flood_analysis_tainui,1,0)
 
 ######################				   
 ## Set time blocking #

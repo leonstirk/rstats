@@ -1,7 +1,6 @@
 source('scripts/flooding_data_processing.R')
 
 flood_sub_tainui_forbury <- subset(flood_sub, flood_prone == 1)
-## flood_sub_forbury_dudall <- subset(flood_sub, flood_prone == 0 | flooded == 1)
 flood_sub_tainui_dudall <- subset(flood_sub, flooded == 0)
 
 ldf <- list(flood_sub_tainui_forbury, flood_sub_tainui_dudall)
@@ -10,7 +9,7 @@ ldf <- list(flood_sub_tainui_forbury, flood_sub_tainui_dudall)
 ## Assign treatment variable #
 ##############################
 ## treatment == Tainui
-ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- ifelse(df$flood_prone == 1 & df$flooded == 0,1,0) }))
+ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- ifelse(df$tainui == 1,1,0) }))
 
 ldf_t <- lapply(ldf, function(df) { list(subset(df, after_flood == 0), subset(df, after_flood == 1)) })
 
@@ -24,7 +23,7 @@ l_m_matches <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time
 dndnd_data <- rbind(l_m_data[[1]][[1]],l_m_data[[1]][[2]],l_m_data[[2]][[1]],l_m_data[[2]][[2]])
 
 ## Diff in diff in diff formula
-dndnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood*flooded*flood_prone + ",model_all))
+dndnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood*flooded + after_flood*tainui + ",model_all))
 
 ## Triple interaction income formula #
 ## dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood + flooded + after_flood*flooded" + after_flood*median_income + flooded*median_income + after_flood*flooded*medan_income + ", model_all))

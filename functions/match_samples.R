@@ -1,5 +1,5 @@
 noMiss <- function(a_sub) {
-    a_sub_nomiss <- a_sub %>% dplyr::select(qpid, sale_id, sale_year, ln_sale_price, treatment, after_flood, flooded, flood_prone, one_of(tail(das_vars,-1))) %>% na.omit()
+    a_sub_nomiss <- a_sub %>% dplyr::select(qpid, sale_id, sale_year, ln_sale_price, treatment, after_flood, flooded, flood_prone, tainui, one_of(tail(das_vars,-1))) %>% na.omit()
     return(a_sub_nomiss)
 }
 
