@@ -1,7 +1,7 @@
 source('scripts/flooding_data_processing.R')
 
 ## Model
-dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood + flood_prone + after_flood*flood_prone + ",model_all))
+dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood*flood_prone + ",model_all))
 
 ## Apply treatment
 flood_sub$treatment <- flood_sub$flood_prone
@@ -29,3 +29,5 @@ fit <- lm(dnd_model_formula, data=dnd_sub)
 lfit <- list(fit, raw_fit)
 lfit <- lapply(lfit, summary)
 lfit_clean <- lapply(lfit, function(fit) {clean_summary(fit$coefficients,4)})
+
+dnd_regression_tables <- lapply(lfit_clean, function(reg) { xtable(reg, type = "latex") })

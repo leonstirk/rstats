@@ -1,7 +1,5 @@
 source('scripts/das_data_preprocessing.R')
 
-library('xtable')
-
 n_sum <- vector()
 
 for(au in au_names) {

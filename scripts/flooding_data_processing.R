@@ -1,9 +1,10 @@
 source('scripts/das_data_preprocessing.R')
 
 ## Remove student area units from analysis (homeowner_rate < 0.46) #
-tmp <- 0.46
+tmp <- 0.45
 homeowner_rates<-sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$homeowner_rate)})
 student_areas <- names(homeowner_rates[homeowner_rates<0.46])
+student_areas <- student_areas[which(!student_areas %in% c("South Dunedin"))]
 das <- das[which(!(das$area_unit_name %in% student_areas)),]
 rm(tmp)
 
