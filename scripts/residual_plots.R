@@ -1,17 +1,16 @@
-source("scripts/das_data_preprocessing.R")
+# source("scripts/das_data_preprocessing.R")
+# source("scripts/flooding_data_processing.R")
 
-library(scatterplot3d)
-library(rgl)
+## library(scatterplot3d)
+## library(rgl)
 
-a <- das_caversham
+spatial_resid_model_formula <- as.formula(paste("ln_sale_price ~ ",model_all))
 
-model_lhs_vars <- paste(tail(das_vars,-1), collapse = " + ")
+## control for time?? #
+a_sub <- das[which(das$sale_year == "2002"),]
 
-modelstring <- paste(das_vars[1],"~",model_lhs_vars)
+coord_lm <- lm(spatial_resid_model_formula, data=a_sub)
 
-dta <- a[which(a$sale_year == "2001"),]
-coord.lm = lm(modelstring, data=dta)
+a_sub$coord_res <- resid(coord_lm)
 
-coord.res = resid(coord.lm)
-
-scatterplot3d(dta$lon_gd2000, dta$lat_gd2000, coord.res, main = "Coordinate Residuals", highlight.3d=TRUE, type="h", angle=80)
+m <- ggplot(a_sub, aes(lon_gd2000_x, lat_gd2000_y, color = coord_res)) + geom_point() + scale_colour_gradientn(colours=rainbow(7))

@@ -38,6 +38,8 @@ kilda_east_mb <- c('2952600')
 ## Musselburgh Vector
 musselburgh_mb <- c(as.character(seq(2934000,2934700,100),'2935400'))
 
+## HAND CODE HOUSES IN MB 2947300 #
+
 flood_analysis_forbury <- c(flood_analysis_forbury[which(!(flood_analysis_forbury %in% c(kilda_west_mb, kilda_central_mb, south_dunedin_mb)))],st_clair_mb)
 flood_analysis_tainui <- c(flood_analysis_tainui[which(!(flood_analysis_tainui %in% c(kilda_east_mb)))],musselburgh_mb,south_dunedin_mb)
 

@@ -118,6 +118,9 @@ v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no","vi
 das <- das[!v]
 rm(v)
 
+## Scale conversions #
+das$median_income <- das$median_income/1000
+
 ##################
 ## Add variables #
 ##################
@@ -172,8 +175,8 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ## Index
 
 ## Flooding
-das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", "dist_esplanade", dummy_vars_from_gen)
-mah_vars <- c("carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "dist_esplanade")
+das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
+mah_vars <- c("carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
 model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)")
 
