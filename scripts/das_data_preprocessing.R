@@ -180,6 +180,7 @@ mah_vars <- c("carparks", "building_floor_area", "land_area", "median_income", "
 exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
 model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)")
 
+
 ## Subset on area unit #
 das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 ## das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
