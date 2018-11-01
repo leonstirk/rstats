@@ -119,7 +119,7 @@ das <- das[!v]
 rm(v)
 
 ## Scale conversions #
-das$median_income <- das$median_income/1000
+das$median_income <- das$median_income/10000
 
 ##################
 ## Add variables #
@@ -150,7 +150,6 @@ das$dist_forburycorner <-  distm(coordinate_pairs, forburycorner, fun = distHave
 ############################################
 
 dummies <- data.frame(cbind(
-    #  genDummy(das$sale_year, "sale_year"),
     genDummy(das$bedrooms, "bedrooms"),
     genDummy(das$bathrooms, "bathrooms"),
     genDummy(das$period_built, "period_built"),
@@ -161,6 +160,12 @@ dummies <- data.frame(cbind(
 ))
 dummy_vars_from_gen <- names(dummies)
 das <- cbind(das,dummies)
+
+sale_year_dummies <- data.frame(cbind(
+    genDummy(das$sale_year, "sale_year")
+))
+das <- cbind(das,sale_year_dummies)
+        
 
 
 ##########################################################################
@@ -179,6 +184,11 @@ das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "
 mah_vars <- c("carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate")
 exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
 model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)")
+
+## das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
+## mah_vars <- c("carparks", "building_floor_area", "land_area", "homeowner_rate")
+## exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
+## model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)")
 
 
 ## Subset on area unit #

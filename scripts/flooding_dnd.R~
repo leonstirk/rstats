@@ -1,9 +1,0 @@
-source('scripts/flooding_data_processing.R')
-
-library('xtable')
-
-model_formula <- as.formula(paste("ln_sale_price ~ after_flood + flood_prone + after_flood*flood_prone + ", model_lhs_vars))
-fit <- lm(model_formula, data = flood_sub)
-fit_clean <- clean_summary(summary(fit)$coefficients,4)
-
-print(xtable(fit_clean, type = "latex"))
