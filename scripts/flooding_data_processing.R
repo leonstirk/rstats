@@ -62,7 +62,7 @@ das$tainui <- ifelse(das$meshblock_id %in% flood_analysis_tainui,1,0)
 ######################
 
 flood_date <- as.Date('2015-06-03')
-years <- 2
+years <- 3
 days <- years*365
 start_date <- flood_date - days
 end_date <- flood_date + days
