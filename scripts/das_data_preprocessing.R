@@ -133,17 +133,17 @@ das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
 ## Add distance variables #
 ###########################
 
-## Set coordinates #
-esplanade <- c(170.489288,-45.911940)
-paknsave <- c(170.498236,-45.893247)
-forburycorner <- c(170.484643,-45.898915)
+## ## Set coordinates #
+## esplanade <- c(170.489288,-45.911940)
+## paknsave <- c(170.498236,-45.893247)
+## forburycorner <- c(170.484643,-45.898915)
 
-## Calculate distance vectors #
+## ## Calculate distance vectors #
 
-coordinate_pairs <- cbind(das$lon_gd2000_x, das$lat_gd2000_y)
-das$dist_esplanade <- distm(coordinate_pairs, esplanade, fun = distHaversine)/1000
-das$dist_paknsave <-  distm(coordinate_pairs, paknsave, fun = distHaversine)/1000
-das$dist_forburycorner <-  distm(coordinate_pairs, forburycorner, fun = distHaversine)/1000
+## coordinate_pairs <- cbind(das$lon_gd2000_x, das$lat_gd2000_y)
+## das$dist_esplanade <- distm(coordinate_pairs, esplanade, fun = distHaversine)/1000
+## das$dist_paknsave <-  distm(coordinate_pairs, paknsave, fun = distHaversine)/1000
+## das$dist_forburycorner <-  distm(coordinate_pairs, forburycorner, fun = distHaversine)/1000
 
 ############################################
 ## Generate dummy matrices and bind to das #
