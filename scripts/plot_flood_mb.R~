@@ -1,0 +1,28 @@
+require("rgdal") # requires sp, will use proj.4 if installed
+require("maptools")
+require("ggplot2")
+require("plyr")
+
+## utah = readOGR(dsn="./shapefiles/utah_eg/", layer="eco_l3_ut")
+## utah@data$id = rownames(utah@data)
+## utah.points = fortify(utah, region="id")
+## utah.df = join(utah.points, utah@data, by="id")
+
+## utah <- ggplot(utah.df) +
+##     aes(long,lat,group=group,fill=LEVEL3_NAM) +
+##     geom_polygon() +
+##     geom_path(color="white") +
+##     coord_equal() +
+##     scale_fill_brewer("Utah Ecoregion")
+
+dud = readOGR(dsn="./shapefiles/AU_TA_Dunedin_CC/", layer="AU_TA_Dunedin_CC")
+dud@data$id = rownames(dud@data)
+dud.points = fortify(dud, region="id")
+dud.df = join(dud.points, dud@data, by="id")
+
+dud_plot <- ggplot(dud.df) +
+    aes(long,lat,group=group,fill=AU_NAME) +
+    geom_polygon() +
+    geom_path(color="white") +
+    coord_equal() +
+    scale_fill_brewer("dud aus")

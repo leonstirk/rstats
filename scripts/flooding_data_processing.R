@@ -7,17 +7,19 @@ student_areas <- names(homeowner_rates[homeowner_rates<0.46])
 student_areas <- student_areas[which(!student_areas %in% c("South Dunedin"))]
 das <- das[which(!(das$area_unit_name %in% student_areas)),]
 rm(tmp)
+rm(student_areas)
 
 ## Remove harbour areas from ravensbourne to port chalmers
 harbour_areas <- c("St Leonards-Blanket Bay","Sawyers Bay","Port Chalmers")
 das <- das[which(!das$area_unit_name %in% harbour_areas),]
+rm(harbour_areas)
 
 ######################################
 ## Define rough area unit boundaries #
 ######################################
 
-flood_analysis_forbury <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("Forbury","South Dunedin","St Kilda West","St Kilda Central"))])))
-flood_analysis_tainui <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("St Kilda East"))])))
+forbury_mb_vec <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("Forbury","South Dunedin","St Kilda West","St Kilda Central"))])))
+tainui_mb_vec <- levels(as.factor(as.character(das$meshblock_id[which(das$area_unit_name %in% c("St Kilda East"))])))
 
 ##########################################
 ## Tidy up boundaries at meshblock level #
@@ -46,16 +48,22 @@ musselburgh_mb <- c(as.character(seq(2934000,2934700,100),'2935400'))
 
 ## HAND CODE HOUSES IN MB 2947300 #
 
-flood_analysis_forbury <- c(flood_analysis_forbury[which(!(flood_analysis_forbury %in% c(kilda_west_mb, kilda_central_mb, south_dunedin_mb)))],st_clair_flood_mb)
-flood_analysis_tainui <- c(flood_analysis_tainui[which(!(flood_analysis_tainui %in% c(kilda_east_mb)))],musselburgh_mb,south_dunedin_mb,kilda_west_mb,st_clair_nonflood_mb,kilda_central_mb)
+forbury_mb_vec <- c(forbury_mb_vec[which(!(forbury_mb_vec %in% c(kilda_west_mb, kilda_central_mb, south_dunedin_mb)))],st_clair_flood_mb)
+tainui_mb_vec <- c(tainui_mb_vec[which(!(tainui_mb_vec %in% c(kilda_east_mb)))],musselburgh_mb,south_dunedin_mb,kilda_west_mb,st_clair_nonflood_mb,kilda_central_mb)
 
-##################################
-## Assign treatment dummy to das #
-##################################
+########################
+## Assign area dummies #
+########################
 
-das$flooded <- ifelse(das$meshblock_id %in% flood_analysis_forbury,1,0)
-das$flood_prone <- ifelse(das$meshblock_id %in% c(flood_analysis_forbury, flood_analysis_tainui),1,0)
-das$tainui <- ifelse(das$meshblock_id %in% flood_analysis_tainui,1,0)
+das$flooded <- ifelse(das$meshblock_id %in% forbury_mb_vec,1,0)
+das$tainui <- ifelse(das$meshblock_id %in% tainui_mb_vec,1,0)
+das$flood_prone <- ifelse(das$meshblock_id %in% c(forbury_mb_vec, tainui_mb_vec),1,0)
+das$rest_of_dud <- ifelse(das$flood_prone == 1,0,1)
+
+das$flood_analysis_group <- as.factor(das$rest_of_dud + das$tainui*2 + das$flooded*3)
+tmp <- levels(das$flood_analysis_group)
+das$flood_analysis_group <- mapvalues(das$flood_analysis_group, from = tmp, to = c("rest_of_dud", "tainui", "flooded"))
+rm(tmp)
 
 ######################				   
 ## Set time blocking #

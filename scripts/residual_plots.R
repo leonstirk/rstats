@@ -12,4 +12,4 @@ coord_lm <- lm(spatial_resid_model_formula, data=a_sub)
 
 a_sub$coord_res <- resid(coord_lm)
 
-m <- ggplot(a_sub, aes(lon_gd2000_x, lat_gd2000_y, color = coord_res)) + geom_point(position="jitter") + scale_colour_gradientn(colours=rainbow(7))
+m <- ggplot(a_sub, aes(lon_gd2000_x, lat_gd2000_y, color = coord_res)) + geom_point(position="jitter") + scale_colour_gradientn(colors=rainbow(7))
