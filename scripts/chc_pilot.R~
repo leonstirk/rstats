@@ -1,0 +1,5 @@
+eq_date_1 <- as.Date('2010-09-04')
+eq_date_2 <- as.Date('2011-02-22')
+eq_date_3 <- as.Date('2011-06-13')
+eq_date_4 <- as.Date('2011-12-23')
+
