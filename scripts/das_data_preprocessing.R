@@ -191,6 +191,7 @@ mah_vars <- c("carparks", "building_floor_area", "land_area", "median_income", "
 exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
 model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)")
 
+## Without median income
 ## das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
 ## mah_vars <- c("carparks", "building_floor_area", "land_area", "homeowner_rate")
 ## exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
