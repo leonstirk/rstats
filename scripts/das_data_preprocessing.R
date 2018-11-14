@@ -129,6 +129,12 @@ das$median_income <- das$median_income/10000
 arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Castle Street","Corstophine Road","Cumberland Street","Eglinton Road","Forbury Road","George Street","Great King Street","Highgate","High Street","Hillside Road","Kaikorai Valley Road","Kenmure Road","King Edward Street","Macandrew Road","Mailer Street","Main South Road","Maitland Street","Malvern Street","Musselburgh Rise","North Road","Opoho Road","Pine Hill Road","Prince Albert Road","Queens Drive","South Road","Stevenson Road","Victoria Road")
 das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
 
+## ## Split out street number
+## tmp <- strsplit(das$physical_address, " ")
+## tmp <- lapply(tmp, function(v) { v[1] })
+## das$street_num <- as.character(tmp)
+## rm(tmp)
+
 ###########################
 ## Add distance variables #
 ###########################
