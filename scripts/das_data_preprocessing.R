@@ -219,4 +219,4 @@ model_mah <- paste(mah_vars, collapse = " + ")
 source('functions/match_samples.R')
 
 ## Other shit
-au_names <- levels(das$area_unit_name)
+au_names <- c(levels(das$area_unit_name),'Harbourside','Caledonian')
