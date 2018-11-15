@@ -42,7 +42,7 @@ dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood*flooded+ ",mo
 fit <- lm(dnd_model_formula, data=dnd_data)
 raw_fit <- lm(dnd_model_formula, data=flood_sub)
 
-lfit <- list(fit, raw_fit)
+lfit <- list(raw_fit, fit)
 lfit <- lapply(lfit, summary)
 lfit_clean <- lapply(lfit, function(fit) {clean_summary(fit$coefficients,4)})
 

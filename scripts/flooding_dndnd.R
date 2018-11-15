@@ -58,4 +58,7 @@ l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fi
 ## Plot matched vs unmatched samples #
 ######################################
 
+raw_plot <- ggplot(flood_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
+dndnd_plot <- ggplot(dndnd_data, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
+
 ## comparison_plots <- lapply(l_a_data, function(data) { ggplot(data, aes(x=lon_gd2000_x, y=lat_gd2000_y)) + geom_point(aes(color = after_flood, shape = after_flood), position = "jitter") }) + coord_cartesian(xlim = c(170.4375,170.58), ylim = c(-45.825,-45.925))

@@ -26,8 +26,11 @@ raw_fit <- lm(dnd_model_formula, data=flood_sub)
 ## Matched sample regression model
 fit <- lm(dnd_model_formula, data=dnd_sub)
 
-lfit <- list(fit, raw_fit)
+lfit <- list(raw_fit, fit)
 lfit <- lapply(lfit, summary)
 lfit_clean <- lapply(lfit, function(fit) {clean_summary(fit$coefficients,4)})
 
 dnd_regression_tables <- lapply(lfit_clean, function(reg) { xtable(reg, type = "latex") })
+
+raw_plot <- ggplot(flood_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
+dnd_plot <- ggplot(dnd_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()

@@ -141,12 +141,14 @@ kilda_west_nonflood_mb    <- c('2945700',as.character(seq(2946100,2946600,100)),
 kilda_west_exclude_mb     <- c('2947400','2947300')
 kilda_west_flood_mb       <- kilda_west_mbs[which(!(kilda_west_mbs %in% c(kilda_west_nonflood_mb,kilda_west_exclude_mb)))]
 
+caversham_nonflood_mb     <- c('2913300','2913400','2913500','2913600','2914800','2914900')
+
 ##########
 ## Group #
 ##########
 
-flood_mbs                 <- c(st_clair_flood_mb,south_dunedin_flood_mb,kilda_central_flood_mb,kilda_west_flood_mb)
-nonflood_mbs              <- c(south_dunedin_nonflood_mb,kilda_east_nonflood_mb,kilda_central_nonflood_mb,kilda_west_nonflood_mb)
+flood_mbs                 <- c(forbury_mbs,st_clair_flood_mb,south_dunedin_flood_mb,kilda_central_flood_mb,kilda_west_flood_mb)
+nonflood_mbs              <- c(south_dunedin_nonflood_mb,kilda_east_nonflood_mb,kilda_central_nonflood_mb,kilda_west_nonflood_mb,caversham_nonflood_mb)
 
 flood_obs                 <- c(mb_2947300_flood)
 nonflood_obs              <- c(mb_2947300_nonflood,mb_2926100_nonflood,mb_2927400_nonflood)
@@ -182,3 +184,4 @@ end_date <- flood_date + days
 flood_sub <- subset(das,sale_date>start_date & sale_date<end_date)
 flood_sub$after_flood <- ifelse(flood_sub$sale_date<flood_date,0,1)
 flood_sub$after_flood <- as.factor(flood_sub$after_flood)
+
