@@ -5,13 +5,13 @@ tmp <- 0.45
 homeowner_rates<-sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$homeowner_rate)})
 student_areas <- names(homeowner_rates[homeowner_rates<0.46])
 student_areas <- student_areas[which(!student_areas %in% c("South Dunedin"))]
-das <- das[which(!(das$area_unit_name %in% student_areas)),]
+flood_sub <- das[which(!(das$area_unit_name %in% student_areas)),]
 rm(tmp)
 rm(student_areas)
 
-## Remove harbour areas from ravensbourne to port chalmers
+## Remove harbour areas from st leonards to port chalmers
 harbour_areas <- c("St Leonards-Blanket Bay","Sawyers Bay","Port Chalmers")
-das <- das[which(!das$area_unit_name %in% harbour_areas),]
+flood_sub <- flood_sub[which(!flood_sub$area_unit_name %in% harbour_areas),]
 rm(harbour_areas)
 
 ################################
@@ -145,7 +145,7 @@ caversham_nonflood_mb     <- c('2913300','2913400','2913500','2913600','2914800'
 
 ##########
 ## Group #
-##########
+#########
 
 flood_mbs                 <- c(forbury_mbs,st_clair_flood_mb,south_dunedin_flood_mb,kilda_central_flood_mb,kilda_west_flood_mb)
 nonflood_mbs              <- c(south_dunedin_nonflood_mb,kilda_east_nonflood_mb,kilda_central_nonflood_mb,kilda_west_nonflood_mb,caversham_nonflood_mb)
@@ -181,7 +181,7 @@ days <- years*365
 start_date <- flood_date - days
 end_date <- flood_date + days
 
-flood_sub <- subset(das,sale_date>start_date & sale_date<end_date)
+flood_sub <- subset(flood_sub,sale_date>start_date & sale_date<end_date)
 flood_sub$after_flood <- ifelse(flood_sub$sale_date<flood_date,0,1)
 flood_sub$after_flood <- as.factor(flood_sub$after_flood)
 

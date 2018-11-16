@@ -34,10 +34,6 @@ matchSamples <- function(a_sub) {
 
     ## Match #
     m_out <- matchit(match_model_formula, method = "nearest", distance = "mahalanobis", data = noMiss(a_sub), exact = exact_vars)
-
-
-
-
     
     ## Matched sample data
     m_data <- match.data(m_out)

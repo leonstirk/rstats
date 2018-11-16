@@ -4,8 +4,8 @@ flood_sub_tainui_forbury <- subset(flood_sub, flooded == 1 | tainui == 1)
 flood_sub_tainui_dudall <- subset(flood_sub, flooded == 0)
 flood_sub_forbury_dudall <- subset(flood_sub, tainui == 0)
 
-flood_sub <- flood_sub_tainui_forbury
-## flood_sub <- flood_sub_forbury_dudall
+## flood_sub <- flood_sub_tainui_forbury
+flood_sub <- flood_sub_forbury_dudall
 ## flood_sub <- flood_sub_tainui_dudall
 
 before_flood <- subset(flood_sub, after_flood == 0)
@@ -18,10 +18,10 @@ ldf <- list(before_flood, after_flood)
 ##############################
 
 ## Forbury - Tainui
-ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- 1-df$flooded }))
+## ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- 1-df$flooded }))
 
 ## Forbury - Dunedin
-## ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- df$flooded }))
+ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- df$flooded }))
 
 ## Tainui - Dunedin
 ## ldf <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- df$tainui }))
