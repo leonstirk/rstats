@@ -17,7 +17,7 @@ setwd("/home/ubuntu/rstats")
 ## Define functions #
 #####################
 
-specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k, scientific = FALSE)
 
 clean_summary  <- function(lmcoef, digits) {
     coefs <- as.data.frame(lmcoef)
