@@ -124,38 +124,38 @@ st_clair_flood_mb         <- c('2926900','2927000')
 
 south_dunedin_nonflood_mb <- c('2931000', as.character(seq(2931400,2931800,100)), as.character(seq(2930300,2930900,100)))
 south_dunedin_exclude_mb  <- c('2931200','2931300')
-south_dunedin_ab_mb       <- c('2932300','2932400')
-south_dunedin_flood_mb    <- south_dunedin_mbs[which(!(south_dunedin_mbs %in% c(south_dunedin_nonflood_mb, south_dunedin_exclude_mb, south_dunedin_ab_mb)))]
+south_dunedin_flood_mb    <- south_dunedin_mbs[which(!(south_dunedin_mbs %in% c(south_dunedin_nonflood_mb, south_dunedin_exclude_mb)))]
 
 
-kilda_east_nonflood_mb    <- c(as.character(seq(2950000,2950900,100)),'2951000','2951100',as.character(seq(2951400,2951700,100)),'2952100','2952200')
-kilda_east_ab_mb          <- c('2951801','2951802','2951900','2952001','2952002','2952003','2952300','2952400','2952500','2933202','2933203','2933204')
-kilda_east_exclude_mb     <- kilda_east_mbs[which(!(kilda_east_mbs %in% c(kilda_east_nonflood_mb,kilda_east_ab_mb)))]
+kilda_east_exclude_mb     <- c('2933201')
+kilda_east_nonflood_mb    <- kilda_east_mbs[which(!kilda_east_mbs %in% c(kilda_east_exclude_mb))]
 
 
-kilda_central_flood_mb    <- c(as.character(seq(2947500,2947800,100)),as.character(seq(2948000,2948300,100)))
+musselburgh_nonflood_mb  <- c(as.character(seq(2934100,2934700,100)),'2935400')
+
+
+kilda_central_flood_mb    <- c(as.character(seq(2947500,2947900,100)),as.character(seq(2948000,2948300,100)))
 kilda_central_exclude_mb  <- c('2949900')
-kilda_central_ab_mb       <- c('2947900')
-kilda_central_nonflood_mb <- kilda_central_mbs[which(!(kilda_central_mbs %in% c(kilda_central_flood_mb,kilda_central_exclude_mb,kilda_central_ab_mb)))]
+kilda_central_nonflood_mb <- kilda_central_mbs[which(!(kilda_central_mbs %in% c(kilda_central_flood_mb,kilda_central_exclude_mb)))]
 
 
 kilda_west_nonflood_mb    <- c('2945700',as.character(seq(2946100,2946600,100)),'2947100')
 kilda_west_exclude_mb     <- c('2947400','2947300')
 kilda_west_flood_mb       <- kilda_west_mbs[which(!(kilda_west_mbs %in% c(kilda_west_nonflood_mb,kilda_west_exclude_mb)))]
 
-caversham_nonflood_mb     <- c('2913300','2913400','2913500','2913600','2914800','2914900')
+caversham_nonflood_mb     <- c('2913400','2913500','2913600','2914800','2914900','2914500','2914400')
 
 ##########
 ## Group #
 #########
 
 flood_mbs                 <- c(forbury_mbs,st_clair_flood_mb,south_dunedin_flood_mb,kilda_central_flood_mb,kilda_west_flood_mb)
-nonflood_mbs              <- c(south_dunedin_nonflood_mb,kilda_east_nonflood_mb,kilda_central_nonflood_mb,kilda_west_nonflood_mb,caversham_nonflood_mb)
+nonflood_mbs              <- c(south_dunedin_nonflood_mb,kilda_east_nonflood_mb,kilda_central_nonflood_mb,kilda_west_nonflood_mb,caversham_nonflood_mb, musselburgh_nonflood_mb)
 
 flood_obs                 <- c(mb_2947300_flood)
 nonflood_obs              <- c(mb_2947300_nonflood,mb_2926100_nonflood,mb_2927400_nonflood)
 
-forbury_mb_vec            <- c(flood_mbs, south_dunedin_ab_mb, kilda_central_ab_mb)
+forbury_mb_vec            <- c(flood_mbs)
 tainui_mb_vec             <- c(nonflood_mbs)
 
 ########################

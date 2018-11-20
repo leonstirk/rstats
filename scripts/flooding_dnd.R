@@ -18,17 +18,20 @@ l_m_matches <- lapply(l_m, function(l_m) { l_m[[2]] })
 
 dnd_sub <- rbind(l_m_data[[1]],l_m_data[[2]])
 
+
 ## Post-matching parametric analysis (linear regression model)
+l_a_data <- list(flood_sub, dnd_sub)
 
-## Stadard regression model
-raw_fit <- lm(dnd_model_formula, data=flood_sub)
+l_a_fit <- lapply(l_a_data, function(data) { lm(dnd_model_formula, data = data) })
+l_a_fit_summary <- lapply(l_a_fit, summary)
 
-## Matched sample regression model
-fit <- lm(dnd_model_formula, data=dnd_sub)
+l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fit$coefficients,4)})
 
-lfit <- list(raw_fit, fit)
-lfit <- lapply(lfit, summary)
-lfit_clean <- lapply(lfit, function(fit) {clean_summary(fit$coefficients,4)})
+
+## Balance summaries
+## l_bal_sum <- lapply(l_m_out, summary)
+## l_bal_plot <- lapply(l_m_out, plot)
+## l_bal_plot_sum <- lapply(l_m_out, function(m_out) { plot(summary(m_out, standardize=TRUE)) }) 
 
 dnd_regression_tables <- lapply(lfit_clean, function(reg) { xtable(reg, type = "latex") })
 
