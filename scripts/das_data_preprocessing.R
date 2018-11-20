@@ -74,7 +74,6 @@ genDummy <- function(v, lab) {
 #######################################################################################################################################
 
 load("datasets/dud_allsales_2000to2018.Rda")
-## og_das <- das
 
 #####################################################################################################
 ## Remove a few observations that had no data we can find this data using the missing_data.R script #
@@ -135,31 +134,16 @@ das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
 ## das$street_num <- as.character(tmp)
 ## rm(tmp)
 
-###########################
-## Add distance variables #
-###########################
-
-## ## Set coordinates #
-## esplanade <- c(170.489288,-45.911940)
-## paknsave <- c(170.498236,-45.893247)
-## forburycorner <- c(170.484643,-45.898915)
-
-## ## Calculate distance vectors #
-
-## coordinate_pairs <- cbind(das$lon_gd2000_x, das$lat_gd2000_y)
-## das$dist_esplanade <- distm(coordinate_pairs, esplanade, fun = distHaversine)/1000
-## das$dist_paknsave <-  distm(coordinate_pairs, paknsave, fun = distHaversine)/1000
-## das$dist_forburycorner <-  distm(coordinate_pairs, forburycorner, fun = distHaversine)/1000
 
 ############################################
 ## Generate dummy matrices and bind to das #
 ############################################
 
 dummies <- data.frame(cbind(
-    genDummy(das$bedrooms, "bedrooms"),
-    genDummy(das$bathrooms, "bathrooms"),
-    genDummy(das$period_built, "period_built"),
-    genDummy(das$contour, "contour")
+   genDummy(das$bedrooms, "bedrooms"),
+   genDummy(das$bathrooms, "bathrooms"),
+   genDummy(das$period_built, "period_built"),
+   genDummy(das$contour, "contour")
     #  genDummy(das$decade_built, "decade_built")
     #  genDummy(das$property_ownership_type, "ownership_type"),
     #  genDummy(das$wall_construction_material, "wall_material")
@@ -187,7 +171,7 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 
 ## Flooding
 das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
-mah_vars <- c("carparks", "building_floor_area", "land_area", "median_income", "homeowner_rate")
+mah_vars <- c("building_floor_area", "land_area", "median_income", "homeowner_rate")
 exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
 model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)")
 

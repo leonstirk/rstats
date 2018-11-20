@@ -2,17 +2,19 @@ source('scripts/das_data_preprocessing.R')
 
 ## Remove student area units from analysis (homeowner_rate < 0.46) #
 tmp <- 0.45
-homeowner_rates<-sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$homeowner_rate)})
+
+homeowner_rates <- sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$homeowner_rate)})
+median_incomes <- sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$median_income)})
+dist_cbds <- sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$dist_cbd)})
+
 student_areas <- names(homeowner_rates[homeowner_rates<0.46])
 student_areas <- student_areas[which(!student_areas %in% c("South Dunedin"))]
 flood_sub <- das[which(!(das$area_unit_name %in% student_areas)),]
 rm(tmp)
-rm(student_areas)
 
 ## Remove harbour areas from st leonards to port chalmers
 harbour_areas <- c("St Leonards-Blanket Bay","Sawyers Bay","Port Chalmers")
 flood_sub <- flood_sub[which(!flood_sub$area_unit_name %in% harbour_areas),]
-rm(harbour_areas)
 
 ################################
 ## Define area unit mb vectors #
@@ -160,15 +162,15 @@ tainui_mb_vec             <- c(nonflood_mbs)
 ## Assign area dummies #
 ########################
 
-das$flooded     <- ifelse(das$meshblock_id %in% forbury_mb_vec | das$qpid %in% flood_obs,1,0)
-das$tainui      <- ifelse(das$meshblock_id %in% tainui_mb_vec | das$qpid %in% nonflood_obs,1,0)
+flood_sub$flooded     <- ifelse(flood_sub$meshblock_id %in% forbury_mb_vec | flood_sub$qpid %in% flood_obs,1,0)
+flood_sub$tainui      <- ifelse(flood_sub$meshblock_id %in% tainui_mb_vec | flood_sub$qpid %in% nonflood_obs,1,0)
 
-das$flood_prone <- ifelse(das$flooded == 1 | das$tainui == 1,1,0)
-das$rest_of_dud <- ifelse(das$flood_prone == 1,0,1)
+flood_sub$flood_prone <- ifelse(flood_sub$flooded == 1 | flood_sub$tainui == 1,1,0)
+flood_sub$rest_of_dud <- ifelse(flood_sub$flood_prone == 1,0,1)
 
-das$flood_analysis_group <- as.factor(das$rest_of_dud + das$tainui*2 + das$flooded*3)
-tmp <- levels(das$flood_analysis_group)
-das$flood_analysis_group <- mapvalues(das$flood_analysis_group, from = tmp, to = c("rest_of_dud", "tainui", "flooded"))
+flood_sub$flood_analysis_group <- as.factor(flood_sub$rest_of_dud + flood_sub$tainui*2 + flood_sub$flooded*3)
+tmp <- levels(flood_sub$flood_analysis_group)
+flood_sub$flood_analysis_group <- mapvalues(flood_sub$flood_analysis_group, from = tmp, to = c("rest_of_dud", "tainui", "flooded"))
 rm(tmp)
 
 ######################				   

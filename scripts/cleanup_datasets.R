@@ -27,4 +27,23 @@ das$ln_building_floor_area <- log(das$building_floor_area)
 das$land_area <- das$land_area*100
 das$ln_land_area <- log(das$land_area)
 
+###########################
+## Add distance variables #
+###########################
+
+## ## Set coordinates #
+cbd <- c(170.503628,-45.874166)
+## esplanade <- c(170.489288,-45.911940)
+## paknsave <- c(170.498236,-45.893247)
+## forburycorner <- c(170.484643,-45.898915)
+
+
+## ## Calculate distance vectors #
+
+coordinate_pairs <- cbind(das$lon_gd2000_x, das$lat_gd2000_y)
+das$dist_cbd <- distm(coordinate_pairs, cbd, fun = distHaversine)/1000
+## das$dist_esplanade <- distm(coordinate_pairs, esplanade, fun = distHaversine)/1000
+## das$dist_paknsave <-  distm(coordinate_pairs, paknsave, fun = distHaversine)/1000
+## das$dist_forburycorner <-  distm(coordinate_pairs, forburycorner, fun = distHaversine)/1000
+
 save(das, file="/home/rstudio/dud_allsales_2000to2018.Rda")
