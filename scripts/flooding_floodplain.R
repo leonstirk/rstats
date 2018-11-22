@@ -1,13 +1,13 @@
 source('scripts/flooding_data_processing.R')
 
 ## Model
-dnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood*flood_prone + ",model_all))
+dnd_model_formula <- as.formula(paste("ln_sale_price ~ flood_prone + ",model_all))
 
 ## Apply treatment
 flood_sub$treatment <- flood_sub$flood_prone
 
 ## Subset on time
-ldf_t <- list(subset(flood_sub, after_flood == 0), subset(flood_sub, after_flood == 1))
+ldf_t <- list(flood_sub)
 
 ## Match
 l_m <- lapply(ldf_t, function(df) { matchSamples(df) })
@@ -16,7 +16,7 @@ l_m_out <- lapply(l_m, function(l_m) { l_m[[1]] })
 l_m_data <- lapply(l_m, function(l_m) { l_m[[2]] })
 l_m_matches <- lapply(l_m, function(l_m) { l_m[[2]] })
 
-dnd_sub <- rbind(l_m_data[[1]],l_m_data[[2]])
+dnd_sub <- l_m_data[[1]]
 
 
 ## Post-matching parametric analysis (linear regression model)
@@ -31,7 +31,7 @@ l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fi
 ## Balance summaries
 ## l_bal_sum <- lapply(l_m_out, summary)
 ## l_bal_plot <- lapply(l_m_out, plot)
-## l_bal_plot_sum <- lapply(l_m_out, function(m_out) { plot(summary(m_out, standardize=TRUE)) }) 
+## l_bal_plot_sum <- lapply(l_m_out, function(m_out) { plot(summary(m_out, standardize=TRUE)) })
 
 dnd_regression_tables <- lapply(l_a_fit_summary_clean, function(reg) { xtable(reg, type = "latex") })
 

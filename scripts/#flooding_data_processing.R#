@@ -186,4 +186,3 @@ end_date <- flood_date + days
 ## flood_sub <- subset(flood_sub,sale_date>start_date & sale_date<end_date)
 flood_sub$after_flood <- ifelse(flood_sub$sale_date<flood_date,0,1)
 flood_sub$after_flood <- as.factor(flood_sub$after_flood)
-
