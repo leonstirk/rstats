@@ -172,17 +172,11 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 das_vars <- c("ln_sale_price", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
 mah_vars <- c("building_floor_area", "land_area", "median_income", "homeowner_rate")
 exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen, "sale_year")
-model_vars <- c(das_vars, "dist_cbd","I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)", names(sale_year_dummies))
-
-## Without median income
-## das_vars <- c("ln_sale_price", "carparks", "building_floor_area", "land_area", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
-## mah_vars <- c("carparks", "building_floor_area", "land_area", "homeowner_rate")
-## exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen)
-## model_vars <- c(das_vars, "I(building_floor_area^2)", "I(land_area^2)")
+model_vars <- c(das_vars, "dist_cbd", "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)", names(sale_year_dummies))
 
 
 ## Subset on area unit #
-das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
+## das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 ## das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
 ## das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
 ## das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
@@ -194,6 +188,7 @@ das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
 ## das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
 ## das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
 ## das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
+
 
 ## Define model formulae #
 model_all <- paste(tail(model_vars,-1), collapse = " + ")

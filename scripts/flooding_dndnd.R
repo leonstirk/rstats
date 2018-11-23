@@ -23,7 +23,7 @@ l_m_matches <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time
 dndnd_sub <- rbind(l_m_data[[1]][[1]],l_m_data[[1]][[2]],l_m_data[[2]][[1]],l_m_data[[2]][[2]])
 
 ## Diff in diff in diff formula
-dndnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood*flooded + after_flood*tainui + ",model_all))
+dndnd_model_formula <- as.formula(paste("ln_sale_price ~ after_flood*flood_prone*flooded + ",model_all))
 
 ## Post-matching parametric analysis (linear regression model)
 l_a_data <- list(flood_sub, dndnd_sub)

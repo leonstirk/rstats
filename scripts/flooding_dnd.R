@@ -14,7 +14,7 @@ l_m <- lapply(ldf_t, function(df) { matchSamples(df) })
 
 l_m_out <- lapply(l_m, function(l_m) { l_m[[1]] })
 l_m_data <- lapply(l_m, function(l_m) { l_m[[2]] })
-l_m_matches <- lapply(l_m, function(l_m) { l_m[[2]] })
+l_m_matches <- lapply(l_m, function(l_m) { l_m[[3]] })
 
 dnd_sub <- rbind(l_m_data[[1]],l_m_data[[2]])
 
