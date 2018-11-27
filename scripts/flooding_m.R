@@ -55,6 +55,11 @@ l_bal_sum <- lapply(l_m_out, summary)
 ## l_bal_plot <- lapply(l_m_out, plot)
 ## l_bal_plot_sum <- lapply(l_m_out, function(m_out) { plot(summary(m_out, standardize=TRUE)) })
 
+
+raw_plot <- ggplot(flood_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
+dnd_plot <- ggplot(dnd_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
+
+
 ###################
 ## Zelig analysis #
 ###################
