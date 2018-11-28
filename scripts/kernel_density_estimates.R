@@ -30,5 +30,6 @@ densityCompare <- function(unmatched, matched) {
 
 }
 
+## densityCompare(unmatched, matched)
 ## densityCompare(unmatched_before, matched_before)
 ## densityCompare(unmatched_after, matched_after)

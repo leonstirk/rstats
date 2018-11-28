@@ -35,10 +35,10 @@ mb_2927400_exclude   <- levels(as.factor(mb_2927400_obs[which(mb_2927400_obs$phy
                                                                                                        '49 Norfolk St',
                                                                                                        '51 Norfolk St',
                                                                                                        '41 Sandringham St',
-                                                                                                       '3 Albert Street',
-                                                                                                       '7 Albert Street',
-                                                                                                       '9 Albert Street',
-                                                                                                       '11 Albert Street',
+                                                                                                       '3 Albert St',
+                                                                                                       '7 Albert St',
+                                                                                                       '9 Albert St',
+                                                                                                       '11 Albert St',
                                                                                                        '57 Beach St',
                                                                                                        '59 Beach St',
                                                                                                        '61 Beach St',
@@ -62,12 +62,12 @@ mb_2926100_exclude   <- levels(as.factor(mb_2926100_obs[which(mb_2926100_obs$phy
                                                                                                         '35 Beach St',
                                                                                                         '39 Beach St',
                                                                                                         '45 Beach St',
-                                                                                                        '54 Bedford Street',
-                                                                                                        '56 Bedford Street',
-                                                                                                        '62 Bedford Street',
-                                                                                                        '68 Bedford Street',
-                                                                                                        '72 Bedford Street',
-                                                                                                        '74 Bedford Street',
+                                                                                                        '54 Bedford St',
+                                                                                                        '56 Bedford St',
+                                                                                                        '62 Bedford St',
+                                                                                                        '68 Bedford St',
+                                                                                                        '72 Bedford St',
+                                                                                                        '74 Bedford St',
                                                                                                         '69 Norflk St'
                                                                                                     )),]$qpid))
 mb_2926100_nonflood  <- levels(as.factor(mb_2926100_obs[which(!mb_2926100_obs$qpid %in% mb_2926100_exclude),]$qpid))
@@ -80,6 +80,7 @@ mb_2947300_nonflood  <- levels(as.factor(mb_2947300_obs[which(mb_2947300_obs$phy
                                                                                                        '21 Plunket St',
                                                                                                        '23 Plunket St',
                                                                                                        '25 Plunket St',
+                                                                                                       '27 Plunket St',
                                                                                                        '29 Plunket St',
                                                                                                        '31 Plunket St',
                                                                                                        '33 Plunket St',
@@ -114,12 +115,75 @@ mb_2947300_nonflood  <- levels(as.factor(mb_2947300_obs[which(mb_2947300_obs$phy
                                                                                                    )),]$qpid))
 mb_2947300_flood     <- levels(as.factor(mb_2947300_obs[which(!mb_2947300_obs$qpid %in% mb_2947300_nonflood),]$qpid))
 
+## 2927000
+mb_2927000_obs       <- das[which(das$meshblock_id == 2927000),]
+mb_2927000_nonflood  <- levels(as.factor(mb_2927000_obs[which(mb_2927000_obs$physical_address %in% c('2 Wilson Ave',
+                                                                                                     '117 Forbury Rd',
+                                                                                                     '119 Forbury Rd',
+                                                                                                     '119A Forbury Rd',
+                                                                                                     '119B Forbury Rd',
+                                                                                                     '119C Forbury Rd',
+                                                                                                     '121 Forbury Rd',
+                                                                                                     '121A Forbury Rd',
+                                                                                                     '121B Forbury Rd',
+                                                                                                     '121C Forbury Rd',
+                                                                                                     '123 Forbury Rd',
+                                                                                                     '125 Forbury Rd',
+                                                                                                     '139 Forbury Rd',
+                                                                                                     '141 Forbury Rd',
+                                                                                                     '145 Forbury Rd',
+                                                                                                     '147 Forbury Rd',
+                                                                                                     '149 Forbury Rd',
+                                                                                                     '392 Bayview Rd',
+                                                                                                     '394 Bayview Rd',
+                                                                                                     '394A Bayview Rd',
+                                                                                                     '394B Bayview Rd',
+                                                                                                     '394C Bayview Rd',
+                                                                                                     '396 Bayview Rd',
+                                                                                                     '402 Bayview Rd',
+                                                                                                     '404 Bayview Rd',
+                                                                                                     '408 Bayview Rd'
+                                                                                                     )),]$qpid))
+mb_2927000_flood     <- levels(as.factor(mb_2927000_obs[which(!mb_2927000_obs$qpid %in% mb_2927000_nonflood),]$qpid))
+
+## 2948300
+mb_2948300_obs       <- das[which(das$meshblock_id == 2948300),]
+mb_2948300_nonflood  <- levels(as.factor(mb_2948300_obs[which(mb_2948300_obs$physical_address %in% c('5 Richardson St',
+                                                                                                     '7 Richardson St',
+                                                                                                     '9 Richardson St',
+                                                                                                     '9A Richardson St',
+                                                                                                     '9B Richardson St',
+                                                                                                     '11 Richardson St',
+                                                                                                     '13 Richardson St',
+                                                                                                     '15 Richardson St',
+                                                                                                     '17 Richardson St',
+                                                                                                     '19 Richardson St',
+                                                                                                     '21 Richardson St',
+                                                                                                     '68 Prince Albert Rd',
+                                                                                                     '74 Prince Albert Rd',
+                                                                                                     '80 Prince Albert Rd',
+                                                                                                     '82 Prince Albert Rd',
+                                                                                                     '2 Scott St',
+                                                                                                     '6 Scott St',
+                                                                                                     '8 Scott St',
+                                                                                                     '10 Scott St',
+                                                                                                     '12 Scott St',
+                                                                                                     '14 Scott St',
+                                                                                                     '16 Scott St',
+                                                                                                     '18 Scott St',
+                                                                                                     '20 Scott St',
+                                                                                                     '22 Scott St',
+                                                                                                     '26 Ajax St',
+                                                                                                     '28 Ajax St'
+                                                                                                     )),]$qpid))
+mb_2948300_flood     <- levels(as.factor(mb_2948300_obs[which(!mb_2948300_obs$qpid %in% mb_2948300_nonflood),]$qpid))
+
 
 ##########################################
 ## Define meshblock vectors by area unit #
 ##########################################
 
-st_clair_flood_mb         <- c('2926900','2927000')
+st_clair_flood_mb         <- c('2926900')
 ## st_clair_nonflood_mb      <- c('2926100','2927400')
 
 south_dunedin_nonflood_mb <- c('2931000', as.character(seq(2931400,2931800,100)), as.character(seq(2930300,2930900,100)))
@@ -134,12 +198,12 @@ kilda_east_nonflood_mb    <- kilda_east_mbs[which(!kilda_east_mbs %in% c(kilda_e
 musselburgh_nonflood_mb  <- c(as.character(seq(2934100,2934700,100)),'2935400')
 
 
-kilda_central_flood_mb    <- c(as.character(seq(2947500,2947900,100)),as.character(seq(2948000,2948300,100)))
-kilda_central_exclude_mb  <- c('2949900')
+kilda_central_flood_mb    <- c(as.character(seq(2947500,2947900,100)),as.character(seq(2948000,2948200,100)))
+kilda_central_exclude_mb  <- c('2949900', '2948300')
 kilda_central_nonflood_mb <- kilda_central_mbs[which(!(kilda_central_mbs %in% c(kilda_central_flood_mb,kilda_central_exclude_mb)))]
 
 
-kilda_west_nonflood_mb    <- c('2945700',as.character(seq(2946100,2946600,100)),'2947100')
+kilda_west_nonflood_mb    <- c('2945700','2946100','2946500','2946600','2947100')
 kilda_west_exclude_mb     <- c('2947400','2947300')
 kilda_west_flood_mb       <- kilda_west_mbs[which(!(kilda_west_mbs %in% c(kilda_west_nonflood_mb,kilda_west_exclude_mb)))]
 
@@ -152,8 +216,8 @@ caversham_nonflood_mb     <- c('2913400','2913500','2913600','2914800','2914900'
 flood_mbs                 <- c(forbury_mbs,st_clair_flood_mb,south_dunedin_flood_mb,kilda_central_flood_mb,kilda_west_flood_mb)
 nonflood_mbs              <- c(south_dunedin_nonflood_mb,kilda_east_nonflood_mb,kilda_central_nonflood_mb,kilda_west_nonflood_mb,caversham_nonflood_mb, musselburgh_nonflood_mb)
 
-flood_obs                 <- c(mb_2947300_flood)
-nonflood_obs              <- c(mb_2947300_nonflood,mb_2926100_nonflood,mb_2927400_nonflood)
+flood_obs                 <- c(mb_2947300_flood, mb_2948300_flood, mb_2927000_flood)
+nonflood_obs              <- c(mb_2947300_nonflood, mb_2926100_nonflood, mb_2927400_nonflood, mb_2948300_nonflood, mb_2927000_nonflood)
 
 forbury_mb_vec            <- c(flood_mbs)
 tainui_mb_vec             <- c(nonflood_mbs)
