@@ -18,14 +18,13 @@ l_m_matches <- lapply(l_m, function(l_m) { l_m[[3]] })
 
 dnd_sub <- l_m_data[[1]]
 
-
 ## Post-matching parametric analysis (linear regression model)
 l_a_data <- list(flood_sub, dnd_sub)
 
 l_a_fit <- lapply(l_a_data, function(data) { lm(dnd_model_formula, data = data) })
 l_a_fit_summary <- lapply(l_a_fit, summary)
 
-l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fit$coefficients,4)})
+## l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fit$coefficients,4)})
 
 
 ## Balance summaries

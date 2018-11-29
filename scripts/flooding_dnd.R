@@ -18,7 +18,6 @@ l_m_matches <- lapply(l_m, function(l_m) { l_m[[3]] })
 
 dnd_sub <- rbind(l_m_data[[1]],l_m_data[[2]])
 
-
 ## Post-matching parametric analysis (linear regression model)
 l_a_data <- list(flood_sub, dnd_sub)
 

@@ -10,6 +10,7 @@ library(McSpatial)
 library(reshape2)
 library(zeligverse)
 library(xtable)
+library(cem)
 
 setwd("/home/ubuntu/rstats")
 
@@ -171,7 +172,7 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ## Flooding
 das_vars <- c("ln_sale_price", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
 mah_vars <- c("building_floor_area", "land_area", "median_income", "homeowner_rate")
-exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen, "sale_year")
+exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen, 'sale_year')
 model_vars <- c(das_vars, "dist_cbd", "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)", names(sale_year_dummies))
 
 
@@ -193,6 +194,7 @@ model_vars <- c(das_vars, "dist_cbd", "I(building_floor_area^2)", "I(land_area^2
 ## Define model formulae #
 model_all <- paste(tail(model_vars,-1), collapse = " + ")
 model_mah <- paste(mah_vars, collapse = " + ")
+model_cem <- paste(c(mah_vars,exact_vars), collapse = " + ")
 
 ## Import functions #
 source('functions/match_samples.R')

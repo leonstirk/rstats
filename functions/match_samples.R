@@ -23,8 +23,6 @@ matchSamples <- function(a_sub) {
     ## m_out <- matchit(match_model_formula, method = "nearest", distance = "logit", caliper = caliper, data = noMiss(a_sub), mahvars = mah_vars)
 
 
-
-
     ## ###########################################################    
     ## Mahalanobis metric with exact matching on dummy variables #
     ## ###########################################################
@@ -42,4 +40,24 @@ matchSamples <- function(a_sub) {
     m_match <- na.omit(data.frame(match.data(m_out)[m_out$match.matrix,das_vars],match.data(m_out)[rownames(m_out$match.matrix),das_vars]))
     
     return(list(m_out, m_data, m_match))
+
+
+    ## ## Another possibility is Mahalanobis metric with exact matching on dummies WITH replacement #
+    ## ## In that case the weight matrix will reflect the number of times a control unit is matched with a treatment unit #
+    ## ## The subsequent parametric analysis would involve a weighted regression #
+
+    ## ## Create match model strings #
+    ## match_model_formula <- as.formula(paste("treatment ~ ",model_mah))
+
+    ## ## Match #
+    ## m_out <- matchit(match_model_formula, method = "nearest", distance = "mahalanobis", data = noMiss(a_sub), exact = exact_vars, replace = TRUE)
+    
+    ## ## Matched sample data
+    ## m_data <- match.data(m_out)
+
+    ## ## Matched sample matches
+    ## m_match <- na.omit(data.frame(match.data(m_out)[m_out$match.matrix,das_vars],match.data(m_out)[rownames(m_out$match.matrix),das_vars]))
+    
+    ## return(list(m_out, m_data, m_match))
+
 }

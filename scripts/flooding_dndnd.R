@@ -38,6 +38,8 @@ l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fi
 ####################
 ## l_bal_sum <- lapply(l_m_out, summary)
 ## l_bal_plot <- lapply(l_m_out, plot)
+
+## l_bal_std_sum <- lapply(l_m_out, function(m_out) { summary(m_out, standardize=TRUE) })
 ## l_bal_plot_sum <- lapply(l_m_out, function(m_out) { plot(summary(m_out, standardize=TRUE)) })
 
 ###################
