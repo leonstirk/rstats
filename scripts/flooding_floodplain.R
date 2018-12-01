@@ -36,5 +36,5 @@ l_bal_std_sum <- lapply(l_m_out, function(m_out) { summary(m_out, standardize=TR
 
 ## dnd_regression_tables <- lapply(l_a_fit_summary_clean, function(reg) { xtable(reg, type = "latex") })
 
-raw_plot <- ggplot(flood_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
-dnd_plot <- ggplot(dnd_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
+raw_plot <- ggplot(flood_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point() + coord_cartesian(xlim = c(170.445, 170.565), ylim = c(-45.915,-45.83))
+dnd_plot <- ggplot(dnd_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point() + coord_cartesian(xlim = c(170.445, 170.565), ylim = c(-45.915,-45.83))

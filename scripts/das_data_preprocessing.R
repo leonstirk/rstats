@@ -173,7 +173,7 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 das_vars <- c("ln_sale_price", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
 mah_vars <- c("building_floor_area", "land_area", "median_income", "homeowner_rate")
 exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "arterial_street", "deck", dummy_vars_from_gen, 'sale_year')
-model_vars <- c(das_vars, "dist_cbd", "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)", names(sale_year_dummies))
+model_vars <- c(das_vars, "dist_cbd", "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)", tail(names(sale_year_dummies),-12))
 
 
 ## Subset on area unit #
