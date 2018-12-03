@@ -28,7 +28,7 @@ chc_au_size$Separate.House.2013 <- as.numeric(as.character(chc_au_size$Separate.
 chc_au_size <- subset(chc_au_size, !( Separate.House.2001=='NA' | Separate.House.2006=='NA' | Separate.House.2013=='NA'))
 chc_au_size$mean_n <- (chc_au_size$Separate.House.2001 + chc_au_size$Separate.House.2006 + chc_au_size$Separate.House.2013)/3
 
-filter_thresh <- 199
+filter_thresh <- 0
 chc_au_size_filter <- chc_au_size[which(chc_au_size$mean_n > filter_thresh),]
 
 n_filtered_units <- og_size - nrow(chc_au_size_filter)

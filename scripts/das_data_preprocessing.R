@@ -85,9 +85,14 @@ das <- data.frame(das)
 ################################
 ## Factor variable conversions #
 ################################
-f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","decade_built","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa")
+f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","decade_built","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa", "bedrooms")
 das[f] <- lapply(das[f],as.factor)
 rm(f)
+
+####################
+## Relevel factors #
+####################
+das$bedrooms <- relevel(das$bedrooms, ref = '3')
 
 ##########################
 ## Character conversions #
@@ -172,7 +177,7 @@ names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_re
 ## Flooding
 das_vars <- c("ln_sale_price", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
 mah_vars <- c("building_floor_area", "land_area", "median_income", "homeowner_rate")
-exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "deck", dummy_vars_from_gen)
+exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "deck", "arterial_street", dummy_vars_from_gen)
 model_vars <- c(das_vars, "dist_cbd", "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)", tail(names(sale_year_dummies),-12))
 
 
