@@ -31,7 +31,7 @@ l_a_data <- list(flood_sub, dndnd_sub)
 l_a_fit <- lapply(l_a_data, function(data) { lm(dndnd_model_formula, data = data) })
 l_a_fit_summary <- lapply(l_a_fit, summary)
 
-l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fit$coefficients,4)})
+## l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fit$coefficients,4)})
 
 ####################
 ## Balance summary #
@@ -54,7 +54,7 @@ l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fi
 ## Plot matched vs unmatched samples #
 ######################################
 
-raw_plot <- ggplot(flood_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point() + coord_cartesian(xlim = c(170.445, 170.565),ylim = c(-45.915,-45.83))
-dndnd_plot <- ggplot(dndnd_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point() + coord_cartesian(xlim = c(170.445, 170.565), ylim = c(-45.915,-45.83))
+## raw_plot <- ggplot(flood_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point() + coord_cartesian(xlim = c(170.445, 170.565),ylim = c(-45.915,-45.83))
+## dndnd_plot <- ggplot(dndnd_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point() + coord_cartesian(xlim = c(170.445, 170.565), ylim = c(-45.915,-45.83))
 
 ## comparison_plots <- lapply(l_a_data, function(data) { ggplot(data, aes(x=lon_gd2000_x, y=lat_gd2000_y)) + geom_point(aes(color = after_flood, shape = after_flood), position = "jitter") }) + coord_cartesian(xlim = c(170.4375,170.58), ylim = c(-45.825,-45.925))
