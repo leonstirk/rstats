@@ -201,7 +201,7 @@ model_all <- paste(tail(model_vars,-1), collapse = " + ")
 model_mah <- paste(mah_vars, collapse = " + ")
 model_cem <- paste(c(mah_vars,exact_vars), collapse = " + ")
 
-## Import functions #
+## Import dependent functions #
 source('functions/match_samples.R')
 
 ## Other shit
