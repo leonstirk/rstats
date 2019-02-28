@@ -1,5 +1,7 @@
 
 
+## Other crap
+
 densityCompare as a function rather than a script
 
 try to functionalise and modularise some more aspects of my code
