@@ -1,4 +1,0 @@
-n_time <- aggregate(ln_sale_price ~ sale_year, data = das, FUN = length)
-names(n_time) <- c('sale_year','n')
-
-ggplot(data=n_time, aes(sale_year,n)) + geom_line(aes(sale_year,n))

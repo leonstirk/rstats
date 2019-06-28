@@ -49,4 +49,3 @@ names <- exampleTable[1,]
 exampleTable <- data.frame(tail(exampleTable, -1))
 names(exampleTable) <- names
 rm(names)
-

@@ -1,18 +1,16 @@
 rm(list=ls(all=TRUE))
 
-library(geosphere)
-library(data.table)
-library(MatchIt)
-library(plyr)
-library(dplyr)
-library(ggplot2)
-library(McSpatial)
-library(reshape2)
-library(zeligverse)
-library(xtable)
-library(cem)
-
-setwd("/home/ubuntu/rstats")
+require(geosphere)
+require(data.table)
+require(MatchIt)
+require(plyr)
+require(dplyr)
+require(ggplot2)
+require(McSpatial)
+require(reshape2)
+require(zeligverse)
+require(xtable)
+# require(cem)
 
 #####################
 ## Define functions #
@@ -49,19 +47,20 @@ getSampleSize <- function(data_subset, period) {
 checkFactorLength <- function(data, v) {
  return(length(levels(as.factor(as.vector(data[,v])))))
 }
+	
+# eliminateSingleLevelFactors <- function(df) {
+#  factor_vars <- names(which(sapply(df, class) == "factor"))
 
-eliminateSingleLevelFactors <- function(df) {
- factor_vars <- names(which(sapply(df, class) == "factor"))
+#  factor_lengths <- sapply(factor_vars, function(x) {checkFactorLength(df, x)})
+#  null_factors <- as.vector(names(which(factor_lengths < 2)))
 
- factor_lengths <- sapply(factor_vars, function(x) {checkFactorLength(df, x)})
- null_factors <- as.vector(names(which(factor_lengths < 2)))
+#  l <- nrow(df)
+#  z <- c(rep(0, times = l))
+#  df[null_factors] <- z
+#  return(df)
+# }
 
- l <- nrow(df)
- z <- c(rep(0, times = l))
- df[null_factors] <- z
- return(df)
-}
-
+## Generate a dataframe of dummy variables from a single factor variable with multiple levels #
 genDummy <- function(v, lab) {
   f <- as.factor(v)
   labs <- paste(lab, levels(f)[c(-1)], sep = "_")
@@ -79,13 +78,26 @@ load("datasets/dud_allsales_2000to2018.Rda")
 #####################################################################################################
 ## Remove a few observations that had no data we can find this data using the missing_data.R script #
 #####################################################################################################
+
+## convert entries for 0 land_area and 0 building_floor_area to NA (remove what could plausibly be 'apartments' and 'empty lots' from data) #
+das$land_area[das$land_area==0] <- NA
+das$building_floor_area[das$building_floor_area==0] <- NA
+
 das <- na.omit(data.table(das), cols=c(1:47,51:53))
 das <- data.frame(das)
+
+##################
+## Add variables #
+##################
+
+## Arterial road dummy
+arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Castle Street","Corstophine Road","Cumberland Street","Eglinton Road","Forbury Road","George Street","Great King Street","Highgate","High Street","Hillside Road","Kaikorai Valley Road","Kenmure Road","King Edward Street","Macandrew Road","Mailer Street","Main South Road","Maitland Street","Malvern Street","Musselburgh Rise","North Road","Opoho Road","Pine Hill Road","Prince Albert Road","Queens Drive","South Road","Stevenson Road","Victoria Road")
+das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
 
 ################################
 ## Factor variable conversions #
 ################################
-f <- c("sale_quarter","meshblock_id","area_unit_id","area_unit_name","decade_built","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa", "bedrooms")
+f <- c("sale_year", "sale_quarter","meshblock_id","area_unit_id","area_unit_name","decade_built","legal_description","ct_no","period_built","contour","property_ownership_type","view_type","wall_construction_material","view_scope", "full_roa", "bedrooms", "bathrooms", "deck", "offstreet_parking", "arterial_street")
 das[f] <- lapply(das[f],as.factor)
 rm(f)
 
@@ -93,6 +105,7 @@ rm(f)
 ## Relevel factors #
 ####################
 das$bedrooms <- relevel(das$bedrooms, ref = '3')
+das$bathrooms <- relevel(das$bathrooms, ref = '1')
 
 ##########################
 ## Character conversions #
@@ -123,86 +136,33 @@ v <- names(das) %in% c("sale_year.1","hnzc_rate","legal_description","ct_no","vi
 das <- das[!v]
 rm(v)
 
+######################
 ## Scale conversions #
+######################
+
 das$median_income <- das$median_income/10000
-
-##################
-## Add variables #
-##################
-
-## Arterial road dummy
-arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Castle Street","Corstophine Road","Cumberland Street","Eglinton Road","Forbury Road","George Street","Great King Street","Highgate","High Street","Hillside Road","Kaikorai Valley Road","Kenmure Road","King Edward Street","Macandrew Road","Mailer Street","Main South Road","Maitland Street","Malvern Street","Musselburgh Rise","North Road","Opoho Road","Pine Hill Road","Prince Albert Road","Queens Drive","South Road","Stevenson Road","Victoria Road")
-das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
-
-## ## Split out street number
-## tmp <- strsplit(das$physical_address, " ")
-## tmp <- lapply(tmp, function(v) { v[1] })
-## das$street_num <- as.character(tmp)
-## rm(tmp)
-
 
 ############################################
 ## Generate dummy matrices and bind to das #
 ############################################
 
-dummies <- data.frame(cbind(
-   genDummy(das$bedrooms, "bedrooms"),
-   genDummy(das$bathrooms, "bathrooms"),
-   genDummy(das$period_built, "period_built"),
-   genDummy(das$contour, "contour")
-    #  genDummy(das$decade_built, "decade_built")
-    #  genDummy(das$property_ownership_type, "ownership_type"),
-    #  genDummy(das$wall_construction_material, "wall_material")
-))
-dummy_vars_from_gen <- names(dummies)
-das <- cbind(das,dummies)
+# dummies <- data.frame(cbind(
+#    ## genDummy(das$period_built, "period_built")
+# ))
+# dummy_vars_from_gen <- names(dummies)
+# das <- cbind(das,dummies)
 
-sale_year_dummies <- data.frame(cbind(
-    genDummy(das$sale_year, "sale_year")
-))
-das <- cbind(das,sale_year_dummies)
-
+# sale_year_dummies <- data.frame(cbind(
+#     genDummy(das$sale_year, "sale_year")
+# ))
+# das <- cbind(das,sale_year_dummies)
 
 ##########################################################################
 ## Set ln_sale_price to use nominal or inflation adjusted log sale price #
 ##########################################################################
-names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_real_net_sale_price"
+names(das)[names(das) == "ln_net_sale_price"] <- "ln_sale_price" # OR set "ln_real_net_sale_price" instead of "ln_net_sale_price"
 
-############################
-## Set vector of variables #
-############################
-
-## Index
-
-## Flooding
-das_vars <- c("ln_sale_price", "building_floor_area", "land_area", "median_income", "homeowner_rate", "arterial_street", "offstreet_parking", "deck", "good_land_view", "good_water_view", dummy_vars_from_gen)
-mah_vars <- c("building_floor_area", "land_area", "median_income", "homeowner_rate")
-exact_vars <- c("good_land_view", "good_water_view", "offstreet_parking", "deck", "arterial_street", dummy_vars_from_gen)
-model_vars <- c(das_vars, "dist_cbd", "I(building_floor_area^2)", "I(land_area^2)","I(median_income^2)", tail(names(sale_year_dummies),-12))
-
-
-## Subset on area unit #
-## das_concord <- das[which(das$area_unit_id == '605920'),] 	 # 726
-## das_brockville <- das[which(das$area_unit_id == '603930'),]	 # 1040
-## das_musselburgh <- das[which(das$area_unit_id == '604611'),]	 # 1134
-## das_wakari <- das[which(das$area_unit_id == '603910'),]	 # 1287
-## das_vauxhall <- das[which(das$area_unit_id == '604620'),]	 # 1420
-## das_stclair <- das[which(das$area_unit_id == '604500'),]	 # 1503
-## das_mornington <- das[which(das$area_unit_id == '604110'),]	 # 1615
-## das_nev <- das[which(das$area_unit_id == '603300'),]		 # 1626
-## das_caversham <- das[which(das$area_unit_id == '604210'),]	 # 2214
-## das_opoho <- das[which(das$area_unit_id == '603210'),]		 # 452
-## das_roslynsouth <- das[which(das$area_unit_id == '604020'),]	 # 936
-## das_maorihill <- das[which(das$area_unit_id == '603710'),]	 # 709
-
-
-## Define model formulae #
-model_all <- paste(tail(model_vars,-1), collapse = " + ")
-model_mah <- paste(mah_vars, collapse = " + ")
-model_cem <- paste(c(mah_vars,exact_vars), collapse = " + ")
-
-## Import dependent functions #
-source('functions/match_samples.R')
-
-## Other shit
-au_names <- c(levels(das$area_unit_name),'Harbourside','Caledonian')
+###################
+## Set flood_date #
+###################
+flood_date <- as.Date('2015-06-04')
