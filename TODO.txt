@@ -1,8 +1,24 @@
-
-
 ## Other crap
 
-densityCompare as a function rather than a script
+robustness checking for non-determinism in matching
 
-try to functionalise and modularise some more aspects of my code
+CEM matching routine implementation
+
+########################################
+
+Random forest generalised hedonic factor variable aggregation methods
+for housing characteristics e.g. wallboard material, period built,
+legal type, spatial, etc.
+
+Christchurch
+  - revisit TC map effects
+  - and earthquake event response
+  - spatial ag routine bc tc zones will span amenity zones
+  - matching routine to control for hedonic quality across amenity zones
+  - comparative regression analysis
+
+
+Coromandel
+  - matching routines to compare samples across townships/settlements
+  - spatial ag
 

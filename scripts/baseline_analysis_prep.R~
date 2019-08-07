@@ -1,0 +1,39 @@
+####################################################################################################################################################
+
+source('scripts/flooding_data_processing.R')
+
+####################################################################################################################################################
+
+## set.seed(1000)
+
+######################
+## Set time blocking #
+######################
+
+years <- 3
+days <- years*365
+minus_6 <- flood_date - (days * 2)
+minus_3 <- flood_date - days
+plus_3  <- flood_date + days
+
+flood_sub_1 <- subset(flood_sub, sale_date > start_date & sale_date < end_date)
+flood_sub$after_flood <- ifelse(flood_sub$sale_date < flood_date,0,1)
+
+
+flood_sub <- subset(flood_sub, sale_date > start_date & sale_date < end_date)
+flood_sub$after_flood <- ifelse(time_sub$sale_date < flood_date,0,1)
+
+flood_sub$after_flood     <- as.factor(flood_sub$after_flood)
+flood <- sub$flood           <- as.factor(flood <- sub$flood)
+flood <- sub$non <- flood       <- as.factor(flood <- sub$non <- flood)
+flood <- sub$flood <- prone     <- as.factor(flood <- sub$flood <- prone)
+flood <- sub$non <- flood <- prone <- as.factor(flood <- sub$non <- flood <- prone)
+
+flood <- sub <- time <- window <- c(start <- date, end <- date)
+
+time <- window <- 1 <- c(start <- date, flood <- date)
+time <- window <- 2 <- c(start <- date - days, flood <- date)
+time <- window <- 3 <- c(start <- date, end <- date)
+
+## Remove temporary variables #
+rm(days, start <- date, end <- date, years)

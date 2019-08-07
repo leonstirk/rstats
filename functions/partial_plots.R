@@ -1,0 +1,176 @@
+pool_point_data <- function(u_data, m_data, var_list) {
+
+  u_data$matched <- rep("unmatched", length(u_data$sale_id))
+  m_data$matched <- rep("matched", length(m_data$sale_id))
+
+  names <- var_list
+  l <- list(u_data, m_data)
+  l <- lapply(l, function(x) {
+    df <- data.frame(x[names])
+    # names(df) <- names
+    return(df)
+  })
+
+  data <- l
+
+  pruned_obs_ids <- setdiff(u_data$sale_id, m_data$sale_id)
+  pruned_data <- data[[1]][which(data[[1]]$sale_id %in% pruned_obs_ids),]
+  pruned_data$matched <- 'pruned'
+
+  data <- list("unmatched_data" = data[[1]], "matched_data" = data[[2]], "pruned_data" = pruned_data)
+
+  return(data)
+}
+
+################################################################################################################
+
+pool_fit_data <- function(u_data, m_data) {
+  u <- as.data.frame(u_data)
+  m <- as.data.frame(m_data)
+  u$matched <- "unmatched"
+  m$matched <- "matched"
+  data <- list("unmatched_data" = u, "matched_data" = m)
+  return(data)
+}
+
+################################################################################################################
+
+plot_data <- function(reg_result_obj, var) {
+  x <- reg_result_obj[['model_partials']]
+
+  u_data <- x[['unmatched_data']][[var]]
+  m_data <- x[['matched_data']][[var]]
+
+  fit_data   <- pool_fit_data(u_data, m_data)
+  point_data <- pool_point_data(u_data, m_data, c("sale_id", "x.all", "partials_y", "matched"))
+
+  return(list("fit_data" = fit_data, "point_data" = point_data))
+}
+
+################################################################################################################
+
+partial_comparison_plot_factor <- function(reg_result_obj, var) {
+
+  data <- plot_data(reg_result_obj, var)
+
+  pch = 4 ## 20, 4, '.'
+  cex = 0.35
+
+  df_fit <- do.call("rbind", data[["fit_data"]])
+  df_points <- do.call("rbind", data[["point_data"]])
+
+  df_fit$matched <- factor(as.factor(df_fit$matched), levels = c("unmatched", "matched"))
+  df_points$matched <- factor(as.factor(df_points$matched), levels = c("unmatched", "matched", "pruned"))
+
+  ## ggplot(data = df_fit, aes(x = df_fit[var][,1], y = fit, color=matched)) + labs(title = var, x = var , y = "ln_sale_price") + geom_violin(data = df_points, aes(x = get(var), y = partials_y, color = matched), position = "identity", alpha = 0) + geom_point(position = position_dodge(width = 0.2)) + geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=0.2, position = 'dodge') + theme_bw()
+
+  ggplot(data = df_fit, aes(x = df_fit[var][,1], y = fit, color=matched)) + labs(title = var, x = var , y = "ln_sale_price") + geom_point(position = position_dodge(width = 0.2)) + geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=0.2, position = 'dodge') + theme_bw()
+}
+
+################################################################################################################
+
+partial_comparison_plot_interaction <- function(reg_result_obj, x_axis, x1_x2) {
+
+    data <- plot_data(reg_result_obj, x1_x2)
+
+    pch <- 4 ## 20, 4, '.'
+    cex <- 0.35
+    color_pal <- hue_pal()(3)
+
+    df_fit <- do.call("rbind", data[["fit_data"]])
+    df_points <- do.call("rbind", data[["point_data"]])
+
+    df_fit$treatment <- mapvalues(df_fit$treatment, c(0,1), c('untreated','treated'))
+    df_fit$after_flood <- mapvalues(df_fit$after_flood, c(0,1), c('before_flood','after_flood'))
+
+    names(df_points) <- c("sale_id", "after_flood", "treatment", "partials_y", "matched")
+
+    df_points$treatment <- mapvalues(df_points$treatment, c(0,1), c('untreated','treated'))
+    df_points$after_flood <- mapvalues(df_points$after_flood, c(0,1), c('before_flood','after_flood'))
+
+    df_fit$matched <- factor(as.factor(df_fit$matched), levels = c("unmatched", "matched"))
+    df_points$matched <- factor(as.factor(df_points$matched), levels = c("unmatched", "matched", "pruned"))
+
+    ggplot(data = df_fit, aes(x = df_fit[x_axis][,1], y = fit, color = matched)) + labs(title ="New title", x = x_axis, y = "ln_sale_price") + geom_point(position = position_dodge(width = 0.2)) + geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=0.2, position = 'dodge') + geom_violin(data = df_points, aes(x = df_points[x_axis][,1], y = partials_y, color = matched), position = "identity", alpha = 0) + facet_grid(~after_flood, labeller = label_parsed) + scale_color_manual(breaks = c("unmatched", "matched", "pruned"), values=c(color_pal[2], color_pal[3], color_pal[1])) + theme_bw()
+
+}
+
+################################################################################################################
+
+partial_comparison_plot_triple_interaction <- function(reg_result_obj, x_axis, x1_x2_x3) {
+    data <- plot_data(reg_result_obj, x1_x2_x3)
+
+    pch       <- 4 ## 20, 4, '.'
+    cex       <- 0.35
+    color_pal <- hue_pal()(3)
+
+    df_fit    <- do.call("rbind", data[["fit_data"]])
+    df_points <- do.call("rbind", data[["point_data"]])
+
+    df_fit$after_flood    <- mapvalues(df_fit$after_flood, c(0,1), c('before_flood','after_flood'))
+    df_fit$flood_prone    <- mapvalues(df_fit$flood_prone, c(0,1), c('not_flood_prone','flood_prone'))
+    df_fit$flood          <- mapvalues(df_fit$flood, c(0,1), c('not_flooded','flooded'))
+
+    names(df_points)      <- c("sale_id", "after_flood", "flood_prone", "flood", "partials_y", "matched")
+
+
+    df_points$after_flood <- mapvalues(df_points$after_flood, c(0,1), c('before_flood','after_flood'))
+    df_points$flood_prone <- mapvalues(df_points$flood_prone, c(0,1), c('not_flood_prone','flood_prone'))
+    df_points$flood       <- mapvalues(df_points$flood, c(0,1), c('not_flooded','flooded'))
+
+    df_fit$matched        <- factor(as.factor(df_fit$matched), levels = c("unmatched", "matched"))
+    df_points$matched     <- factor(as.factor(df_points$matched), levels = c("unmatched", "matched", "pruned"))
+
+    df_fit    <- subset(df_fit, flood_prone == 'flood_prone' | flood == 'not_flooded')
+    df_points <- subset(df_points, flood_prone == 'flood_prone' | flood == 'not_flooded')
+
+    df_fit <<- df_fit
+
+    ## ggplot(data = df_fit, aes(x = df_fit[x_axis][,1], y = fit, color = matched)) + labs(title ="New title", x = x_axis, y = "ln_sale_price") + geom_point(position = position_dodge(width = 0.2)) + geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=0.2, position = 'dodge') + geom_violin(data = df_points, aes(x = df_points[x_axis][,1], y = partials_y, color = matched), position = "identity", alpha = 0) + facet_grid(~flood_prone + flood, labeller = label_parsed) + scale_color_manual(breaks = c("unmatched", "matched", "pruned"), values=c(color_pal[2], color_pal[3], color_pal[1])) + theme_bw()
+
+    ggplot(data = df_fit, aes(x = df_fit[x_axis][,1], y = fit, color = matched)) + labs(title ="New title", x = x_axis, y = "ln_sale_price") + geom_point(position = position_dodge(width = 0.2)) + geom_errorbar(aes(ymin=fit-se, ymax=fit+se), width=0.2, position = 'dodge') + facet_grid(~flood_prone + flood, labeller = label_parsed) + scale_color_manual(breaks = c("unmatched", "matched", "pruned"), values=c(color_pal[2], color_pal[3], color_pal[1])) + theme_bw()
+}
+
+################################################################################################################
+
+partial_comparison_plot_scale <- function(reg_result_obj, var, var_name) {
+
+  data <- plot_data(reg_result_obj, var)
+
+  color_pal <- hue_pal()(3)
+  pch <- 20 ## 20, 4, '.'
+  cex <- 0.2
+  cex_big <- cex*2
+  lwd = 1.5
+  spar <- 1
+  xlim <- c(min(data[["point_data"]][["unmatched_data"]][var_name][,1]), max(data[["point_data"]][["unmatched_data"]][var_name][,1]))
+  trim_xlim <- c(min(data[["point_data"]][["unmatched_data"]][var_name][,1]), quantile(data[["point_data"]][["unmatched_data"]][var_name][,1], c(.995)))
+
+  ## Plot the unmatched partial residuals (RED) #
+  with(data[["point_data"]][["unmatched_data"]], plot(get(var_name), partials_y, pch = pch, cex = cex, col = color_pal[1],
+    main="title",
+    sub="subtitle",
+    xlab=var_name,
+    ylab="ln_sale_price",
+    xlim = trim_xlim
+  ))
+
+  # ## Plot the pruned partial residuals (BLUE) #
+  # with(data[["point_data"]][["pruned_data"]], points(get(var_name), partials_y, pch = pch, cex = cex, col = color_pal[3]))
+
+  ## Plot the matched partial residuals (GREEN) #
+  with(data[["point_data"]][["matched_data"]], points(get(var_name), partials_y, pch = pch, cex = cex_big, col = color_pal[2]))
+
+
+  ## Plot the OLS and spline regression lines for the UNMATCHED data (RED) #
+  lines(data[["fit_data"]][["unmatched_data"]][var_name][,1], data[["fit_data"]][["unmatched_data"]]$fit, col = color_pal[1], lwd = lwd)
+  lines(smooth.spline(data[["point_data"]][["unmatched_data"]][var_name][,1], data[["point_data"]][["unmatched_data"]]$partials_y, spar=spar), lty = 2, col = color_pal[1], lwd = lwd)
+
+  ## Plot the OLS and spline regression lines for the MATCHED data (GREEN) #
+  lines(data[["fit_data"]][["matched_data"]][var_name][,1], data[["fit_data"]][["matched_data"]]$fit, col = color_pal[2], lwd = lwd)
+  lines(smooth.spline(data[["point_data"]][["matched_data"]][var_name][,1], data[["point_data"]][["matched_data"]]$partials_y, spar=spar), lty = 2, col = color_pal[2], lwd = lwd)
+
+  ## Plot the spline regression line for the PRUNED data (BLUE) #
+  lines(smooth.spline(data[["point_data"]][["pruned_data"]][var_name][,1], data[["point_data"]][["pruned_data"]]$partials_y, spar=spar), lty = 2, col = color_pal[3], lwd = lwd)
+
+}

@@ -6,10 +6,14 @@ require(MatchIt)
 require(plyr)
 require(dplyr)
 require(ggplot2)
-require(McSpatial)
+# require(McSpatial)
 require(reshape2)
-require(zeligverse)
-require(xtable)
+# require(zeligverse)
+require(effects)
+library(scales)
+# require(xtable)
+library(huxtable)
+library(broom)
 # require(cem)
 
 #####################
@@ -24,51 +28,51 @@ clean_summary  <- function(lmcoef, digits) {
     coefs
 }
 
-subsetByVar <- function(data, key, value) {
- return(data[which(data[,key] == value),])
-}
+## subsetByVar <- function(data, key, value) {
+##  return(data[which(data[,key] == value),])
+## }
 
-getArithmeticMeanIndexSeries <- function(data_subset, variable, period) {
-  meanSeries <- aggregate(data_subset[, variable], list(data_subset[,period]), mean)
-  meanSeries <-  data.frame(meanSeries)
-  names(meanSeries) <- c(period,variable)
-  index <- (meanSeries[,variable] - meanSeries[1,variable])+1
-  return(index)
-}
+## getArithmeticMeanIndexSeries <- function(data_subset, variable, period) {
+##   meanSeries <- aggregate(data_subset[, variable], list(data_subset[,period]), mean)
+##   meanSeries <-  data.frame(meanSeries)
+##   names(meanSeries) <- c(period,variable)
+##   index <- (meanSeries[,variable] - meanSeries[1,variable])+1
+##   return(index)
+## }
 
-getSampleSize <- function(data_subset, period) {
-  samplesize <- aggregate(data_subset[,1], list(data_subset[,period]), length)
-  samplesize <-  data.frame(samplesize)
-  names(samplesize) <- c(period, "n")
-  series <- (samplesize[,"n"])
-  return(series)
-}
+## getSampleSize <- function(data_subset, period) {
+##   samplesize <- aggregate(data_subset[,1], list(data_subset[,period]), length)
+##   samplesize <-  data.frame(samplesize)
+##   names(samplesize) <- c(period, "n")
+##   series <- (samplesize[,"n"])
+##   return(series)
+## }
 
-checkFactorLength <- function(data, v) {
- return(length(levels(as.factor(as.vector(data[,v])))))
-}
-	
-# eliminateSingleLevelFactors <- function(df) {
-#  factor_vars <- names(which(sapply(df, class) == "factor"))
+## checkFactorLength <- function(data, v) {
+##  return(length(levels(as.factor(as.vector(data[,v])))))
+## }
 
-#  factor_lengths <- sapply(factor_vars, function(x) {checkFactorLength(df, x)})
-#  null_factors <- as.vector(names(which(factor_lengths < 2)))
+## eliminateSingleLevelFactors <- function(df) {
+##  factor_vars <- names(which(sapply(df, class) == "factor"))
 
-#  l <- nrow(df)
-#  z <- c(rep(0, times = l))
-#  df[null_factors] <- z
-#  return(df)
-# }
+##  factor_lengths <- sapply(factor_vars, function(x) {checkFactorLength(df, x)})
+##  null_factors <- as.vector(names(which(factor_lengths < 2)))
+
+##  l <- nrow(df)
+##  z <- c(rep(0, times = l))
+##  df[null_factors] <- z
+##  return(df)
+## }
 
 ## Generate a dataframe of dummy variables from a single factor variable with multiple levels #
-genDummy <- function(v, lab) {
-  f <- as.factor(v)
-  labs <- paste(lab, levels(f)[c(-1)], sep = "_")
-  dummies <- model.matrix(~f)
-  dummies <-  data.frame(dummies)[c(-1)]
-  names(dummies) <- labs
-  return(dummies)
-}
+## genDummy <- function(v, lab) {
+##   f <- as.factor(v)
+##   labs <- paste(lab, levels(f)[c(-1)], sep = "_")
+##   dummies <- model.matrix(~f)
+##   dummies <-  data.frame(dummies)[c(-1)]
+##   names(dummies) <- labs
+##   return(dummies)
+## }
 
 #######################################################################################################################################
 #######################################################################################################################################
@@ -93,6 +97,8 @@ das <- data.frame(das)
 ## Arterial road dummy
 arterial_road_vec <- c("Andersons Bay Road","Bay View Road","Castle Street","Corstophine Road","Cumberland Street","Eglinton Road","Forbury Road","George Street","Great King Street","Highgate","High Street","Hillside Road","Kaikorai Valley Road","Kenmure Road","King Edward Street","Macandrew Road","Mailer Street","Main South Road","Maitland Street","Malvern Street","Musselburgh Rise","North Road","Opoho Road","Pine Hill Road","Prince Albert Road","Queens Drive","South Road","Stevenson Road","Victoria Road")
 das$arterial_street <- ifelse(das$full_roa %in% arterial_road_vec,1,0)
+
+rm(arterial_road_vec)
 
 ################################
 ## Factor variable conversions #
@@ -146,16 +152,16 @@ das$median_income <- das$median_income/10000
 ## Generate dummy matrices and bind to das #
 ############################################
 
-# dummies <- data.frame(cbind(
-#    ## genDummy(das$period_built, "period_built")
-# ))
-# dummy_vars_from_gen <- names(dummies)
-# das <- cbind(das,dummies)
+## dummies <- data.frame(cbind(
+##    ## genDummy(das$period_built, "period_built")
+## ))
+## dummy_vars_from_gen <- names(dummies)
+## das <- cbind(das,dummies)
 
-# sale_year_dummies <- data.frame(cbind(
-#     genDummy(das$sale_year, "sale_year")
-# ))
-# das <- cbind(das,sale_year_dummies)
+## sale_year_dummies <- data.frame(cbind(
+##     genDummy(das$sale_year, "sale_year")
+## ))
+## das <- cbind(das,sale_year_dummies)
 
 ##########################################################################
 ## Set ln_sale_price to use nominal or inflation adjusted log sale price #

@@ -1,60 +1,8 @@
 ####################################################################################################################################################
 
-source('scripts/flooding_data_processing.R')
+source('scripts/flooding_analysis_prep.R')
 
 ####################################################################################################################################################
-
-## set.seed(1000)
-
-## Set plot layout
-## layout(matrix(seq(1,4,1),2,2))
-
-######################
-## Set time blocking #
-######################
-
-years <- 3
-days <- years*365
-start_date <- flood_date - days
-end_date <- flood_date + days
-
-flood_sub <- subset(flood_sub,sale_date > start_date & sale_date < end_date)
-flood_sub$after_flood <- ifelse(flood_sub$sale_date < flood_date,0,1)
-flood_sub$after_flood <- as.factor(flood_sub$after_flood)
-
-flood_sub_time_window <- c(start_date, end_date)
-
-## Remove temporary variables #
-rm(days, start_date, end_date, years)
-
-##################################
-## Set model parameter variables #
-##################################
-
-source('scripts/set_model_strings.R')
-
-#####################
-## Import functions #
-#####################
-
-source('functions/match_samples.R')
-## source('functions/cem_match.R')
-
-source('functions/density_compare.R')
-
-## Reserve variable name 'data' for the partial residual analysis functions #
-data <- data.frame() ## rm(data) after partial residual analysis has run #
-source('functions/partial_residual_analysis_numeric_variables.R')
-
-source('scripts/partial_plots.R')
-
-
-####################################################################################################################################################
-
-F_NF <- subset(flood_sub, flood == 1 | non_flood == 1)
-NF_NFP <- subset(flood_sub, flood == 0)
-F_NFP <- subset(flood_sub, non_flood == 0)
-FP_NFP <- flood_sub
 
 ##############################
 ## Assign treatment variable #
@@ -65,8 +13,7 @@ NF_NFP$treatment <- as.factor(NF_NFP$non_flood)
 F_NFP$treatment  <- as.factor(F_NFP$flood)
 FP_NFP$treatment <- as.factor(FP_NFP$flood_prone)
 
-## flood_data_subsets <- list('F_NF' = F_NF, 'NF_NFP' = NF_NFP, 'F_NFP' = F_NFP, 'FP_NFP' = FP_NFP)
-flood_data_subsets <- list('F_NFP' = F_NFP)
+flood_data_subsets <- list('F_NF' = F_NF, 'NF_NFP' = NF_NFP, 'F_NFP' = F_NFP, 'FP_NFP' = FP_NFP)
 
 results <- lapply(flood_data_subsets, function(unmatched_sub) {
 
@@ -85,12 +32,22 @@ results <- lapply(flood_data_subsets, function(unmatched_sub) {
   matched_sub           <- rbind(l_m_data[[1]],l_m_data[[2]])
 
   ## Specify the linear regression model parameters #
-  model_formula         <- as.formula(paste("ln_sale_price ~ after_flood*treatment+ ",model_all))
-  partial_vars		<- c("after_flood:treatment", "after_flood", "treatment", model_vars[-1])
-  partial_strings       <- c("after_flood:treatment", "after_flood", "treatment", model_strings[-1])
+  model_formula         <- as.formula(paste("ln_sale_price ~ after_flood * treatment + ",model_all))
+  partial_vars		<- c("after_flood:treatment", model_vars[-1])
+  partial_strings       <- c("after_flood:treatment", model_strings[-1])
 
   ## Organise matched and unmatched samples into a list
   l_a_data              <- list(unmatched_data = unmatched_sub, matched_data = matched_sub)
+
+  l_a_descriptives      <- lapply(lapply(l_a_data, function(x) { as.data.frame(lapply(x[des_vars], function(x) { as.numeric(as.character(x)) })) }), function(x) {
+                             descriptives <- c('mean', 'median', 'sd', 'min', 'max')
+                             df <- data.frame(matrix(, nrow = ncol(x[des_vars]), ncol = 0))
+                               for(i in descriptives) {
+                                 df[,i] <- sapply(x[des_vars], i, na.rm = TRUE)
+                               }
+                             rownames(df) <- colnames(x)
+                             return(df)
+                           })
 
   ## Do the linear regression on the pre and post matched samples #
   l_a_model             <- lapply(l_a_data, function(data) {
@@ -103,26 +60,28 @@ results <- lapply(flood_data_subsets, function(unmatched_sub) {
   l_a_partials          <- lapply(l_a_model, function(x) { x[['partials']] })
 
   l_a_fit_summary       <- lapply(l_a_fit, summary)
-  l_a_fit_summary_clean <- lapply(l_a_fit_summary, function(fit) {clean_summary(fit$coefficients,4)})
 
   ## Summarise post match balance improvement
   l_bal_sum             <- lapply(l_m_out, summary)
   l_bal_sum_std         <- lapply(l_m_out, function(m_out) { summary(m_out, standardize=TRUE) })
 
   return(list(
-			'match_output' = l_m_out,
-  	      		'match_data' = l_m_data,
-	      		'match_matches' = l_m_matches,
-			'model_data' = l_a_data,
+			## 'match_output' = l_m_out,
+  	      		## 'match_data' = l_m_data,
+	      		## 'match_matches' = l_m_matches,
+			## 'model_data' = l_a_data,
 			'model_fit' = l_a_fit,
-			'model_partials' = l_a_partials,
+                        'model_partials' = l_a_partials,
+                        'descriptives' = l_a_descriptives,
 	      		'model_summary' = l_a_fit_summary,
-	      		'model_summary_clean' = l_a_fit_summary_clean,
-	      		'balance_summary' = l_bal_sum,
+	      		## 'balance_summary' = l_bal_sum,
 	      		'balance_summary_standardised' = l_bal_sum_std
 	      	))
-  
+
 })
+
+hux(rownames(results[["NF_NFP"]][["descriptives"]][[1]]),lapply(results[["NF_NFP"]][["descriptives"]], function(x) { x[,'mean']}), add_colnames = TRUE)
+huxreg(results[["F_NFP"]][["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
 
 ## Remove reserved 'data' variable used for partial residual analysis #
 rm(data)
@@ -147,12 +106,77 @@ rm(data)
 ## Generate partial plots #
 ###########################
 
-layout(matrix(seq(1,4,1),2,2))
+##################################################################
+## Generate numeric scale partial plots using model_strings[2:5] #
+##################################################################
 
-partial_comparison_plot_scale(results[["F_NFP"]], "poly(building_floor_area, 2)", "building_floor_area")
-partial_comparison_plot_scale(results[["F_NFP"]], "poly(land_area, 2)", "land_area")
-partial_comparison_plot_scale(results[["F_NFP"]], "poly(median_income, 2)", "median_income")
-partial_comparison_plot_scale(results[["F_NFP"]], "homeowner_rate", "homeowner_rate")
+# png(filename = "scale_partial_plots.png",
+#   width = 1500,
+#   height = 1500,
+#   units = "px",
+#   pointsize = 25,
+#   bg = "white",
+#   res = NA
+# )
+# layout(matrix(seq(1,4,1),2,2))
+# for(i in seq(2,5,1)) {
+#   print(partial_comparison_plot_scale(results[["F_NFP"]], model_strings[i], model_vars[i]))
+# }
+# dev.off()
+
+###########################################################################################
+
+##########################################################
+## Generate factor partial plots using model_strings[6:] #
+##########################################################
+
+# png(filename = "factor_partial_plots.png",
+#   width = 1500,
+#   height = 1500,
+#   units = "px",
+#   pointsize = 10,
+#   bg = "white",
+#   res = 100
+# )
+
+# multiplot(
+#   partial_comparison_plot_factor(results[["F_NFP"]], "after_flood"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "treatment"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "arterial_street"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "offstreet_parking"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "deck"),
+#   # partial_comparison_plot_factor(results[["F_NFP"]], "good_land_view"),
+#   # partial_comparison_plot_factor(results[["F_NFP"]], "good_water_view"),
+#   # partial_comparison_plot_factor(results[["F_NFP"]], "bedrooms"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "bathrooms"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "period_built"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "contour"),
+#   partial_comparison_plot_factor(results[["F_NFP"]], "sale_year"),
+#   cols = 3
+# )
+
+# dev.off()
+
+###########################################################################################
+
+######################
+## Interaction plots #
+######################
+
+## png(filename = "interaction_partial_plot.png",
+##   width = 1500,
+##   height = 1500,
+##   units = "px",
+##   pointsize = 10,
+##   bg = "white",
+##   res = 200
+## )
+
+## partial_comparison_plot_interaction(results[["F_NFP"]], "after_flood", "after_flood:treatment")
+
+## dev.off()
+
+###########################################################################################
 
 rm(flood_data_subsets)
 
