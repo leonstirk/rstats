@@ -20,27 +20,16 @@ doDescriptives <- function(data, des_vars) {
     }
     rownames(df) <- colnames(x)
     return(df)
+
 }
 
 doRegression <- function(data, model_formula, partial_strings) {
+
     fit <- lm(model_formula, data = data)
     partials <- partial_resid_numeric_analysis(partial_strings, fit, data)
     return(list('fit' = fit, 'partials' = partials))
+
 }
-
-
-##############################
-## Assign treatment variable #
-##############################
-
-flood_data_subsets <- list('F1' = flood_sub_1, 'F2' = flood_sub_2, 'F3' = flood_sub_3)
-
-flood_data_subsets <- Map(cbind, flood_data_subsets, treatment = lapply(flood_data_subsets, function(df) { df$treatment <- ifelse(df$flood_prone == 1,1,0) }))
-
-## Specify the linear regression model parameters and partial strings #
-model_formula         <- as.formula(paste("ln_sale_price ~ flood_prone + ",model_all))
-partial_vars	  <- c("flood_prone", model_vars[-1])
-partial_strings       <- c("flood_prone", model_strings[-1])
 
 D_match <- function(df) {
 
@@ -81,101 +70,82 @@ D_match <- function(df) {
         'model_summary' = fit_summary,
         'balance_summary_standardised' = bal_sum_std
     ))
-}
-
-D_unmatch <- function() {
 
 }
 
-loop <- seq(1,100)
-montecarlo <- list()
+D_unmatch <- function(df) {
 
-for(i in loop) {
-    set.seed(i)
-    montecarlo[[i]] <- D_match()
+    start.time <- Sys.time()
+
+    ## Make some descriptive statistics about the data
+    descriptives     <- doDescriptives(df, des_vars)
+
+    ## Do the linear regression on the samples #
+    model            <- doRegression(df, model_formula, partial_strings)
+
+    fit              <- model[['fit']]
+    partials         <- model[['partials']]
+    fit_summary      <- summary(fit)
+
+    end.time <- Sys.time()
+    time.taken <- end.time - start.time
+    print(time.taken)
+
+    return(list(
+        'descriptives' = descriptives,
+        'model_fit' = fit,
+        'model_partials' = partials,
+        'model_summary' = fit_summary
+    ))
+
 }
 
+####################################################################################################################################################
 
-## results <- lapply(flood_data_subsets, function(unmatched_sub) {
+##############################
+## Assign treatment variable #
+##############################
 
-##     ## Split into before_flood and after_flood groups respectively #
-##     ldf                   <- list(unmatched_sub)
+flood_data_subsets <- list('F1' = flood_sub_1, 'F2' = flood_sub_2, 'F3' = flood_sub_3)
 
-##     ######################################################################
+flood_data_subsets <- Map(cbind, flood_data_subsets, treatment = lapply(flood_data_subsets, function(df) { df$treatment <- ifelse(df$flood_prone == 1,1,0) }))
 
-##     ## Do matching on before_flood and after_flood groups #
-##     l_m                   <- lapply(ldf, function(df) { matchSamples(df) })
+## Specify the linear regression model parameters and partial strings #
+model_formula         <- as.formula(paste("ln_sale_price ~ flood_prone + ",model_all))
+partial_vars	  <- c("flood_prone", model_vars[-1])
+partial_strings       <- c("flood_prone", model_strings[-1])
 
-##     ## Send matched outputs to some variables #
-##     ## l_m_out               <- lapply(l_m, function(l_m) { l_m[[1]] })
-##     l_m_data              <- lapply(l_m, function(l_m) { l_m[[2]] })
-##     ## l_m_matches           <- lapply(l_m, function(l_m) { l_m[[3]] })
+####################################################################################################################################################
 
-##     ## Recombine the post matching sample #
-##     matched_sub           <- l_m_data[[1]]
+############################
+## Montecarlo match object #
+############################
 
-##     ######################################################################
+## loop <- seq(1,100)
+## montecarlo_match_D <- list()
 
-##     ## Specify the linear regression model parameters #
-##     model_formula         <- as.formula(paste("ln_sale_price ~ flood_prone + ",model_all))
-##     partial_vars	  <- c("flood_prone", model_vars[-1])
-##     partial_strings       <- c("flood_prone", model_strings[-1])
+## for(i in loop) {
+##     set.seed(i)
+##     montecarlo_match_D[[i]] <- D_match(flood_data_subsets[["F3"]])
+## }
 
-##     ######################################################################
+########################
+## Single match object #
+########################
 
-##     ## Organise matched and unmatched samples into a list
-##     l_a_data              <- list(unmatched_data = unmatched_sub, matched_data = matched_sub)
+## single_match_D <- D_match(flood_data_subsets[["F3"]])
 
-##     ######################################################################
+############################
+## Single unmatched object #
+############################
 
-##     ## Make some descriptive statistics about the data
+unmatched_before_D <- D_unmatch(flood_data_subsets[["F2"]])
+unmatched_after_D  <- D_unmatch(flood_data_subsets[["F3"]])
 
-##     l_a_descriptives      <- lapply(l_a_data, function(x) {
-##                                        df <- doDescriptives(x, des_vars)
-##                                        return(df)
-##                                    })
-
-##     ######################################################################
-
-##     ## Do the linear regression on the pre and post matched samples #
-
-##     l_a_model <- lapply(l_a_data, function(x) {
-##                            reg <- doRegression(x, model_formula, partial_strings)
-##                            return(reg)
-##                        })
-
-##     ## l_a_fit               <- lapply(l_a_model, function(x) { x[['fit']] })
-##     l_a_partials          <- lapply(l_a_model, function(x) { x[['partials']] })
-##     l_a_fit_summary       <- lapply(l_a_fit, summary)
-
-##     ######################################################################
-
-##     ## Summarise post match balance improvement
-
-##     ## l_bal_sum             <- lapply(l_m_out, summary)
-##     ## l_bal_sum_std         <- lapply(l_m_out, function(m_out) { summary(m_out, standardize=TRUE) })
-
-##     ######################################################################
-
-##     return(list(
-##         ## 'match_output' = l_m_out,
-##         ## 'match_data' = l_m_data,
-##         ## 'match_matches' = l_m_matches,
-##         ## 'model_data' = l_a_data,
-##         ## 'descriptives' = l_a_descriptives,
-##         ## 'model_fit' = l_a_fit,
-##         'model_partials' = l_a_partials,
-##         'model_summary' = l_a_fit_summary
-##         ## 'balance_summary' = l_bal_sum,
-##         ## 'balance_summary_standardised' = l_bal_sum_std
-##     ))
-
-## })
-
-
+####################################################################################################################################################
 
 ## Remove reserved 'data' variable used for partial residual analysis #
-rm(data)
+## rm(data)
 
 #################################################################
 ## Generate balance improvement kernel density comparison plots #
@@ -250,7 +220,7 @@ rm(data)
 
 ###########################################################################################
 
-rm(flood_data_subsets)
+
 
 ##################
 ## Balance plots #

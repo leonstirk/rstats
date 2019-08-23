@@ -8,21 +8,22 @@ ldf <- list(F_NF, F_NFP)
 
 DiDiD <- function(ldf) {
 
-    ##############################
     ## Assign treatment variable #
-    ##############################
-
     ldf                   <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- ifelse(df$flood == 1,1,0) }))
 
     ## Split into before_flood and after_flood groups respectively #
     ldf_t                 <- lapply(ldf, function(df) { list('before_flood' = subset(df, after_flood == 0), 'after_flood' = subset(df, after_flood == 1)) })
 
-    ## Do matching on before_flood and after_flood groups #
+    ## Do Exact + Mahalanobis (without replacement) matching on before_flood and after_flood groups #
     l_m                   <- lapply(ldf_t, function(ldf) { lapply(ldf, function(df) { matchSamples(df) }) })
 
     l_m_out               <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[1]] }) })
     l_m_data              <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[2]] }) })
     ## l_m_matches           <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[3]] }) })
+
+    ## Do CEM matching on before_flood and after_flood groups
+
+
 
     ## Recombine the post matching sample #
     matched_sub           <- rbind(l_m_data[[1]][[1]],l_m_data[[1]][[2]],l_m_data[[2]][[1]],l_m_data[[2]][[2]])
@@ -35,15 +36,7 @@ DiDiD <- function(ldf) {
     ## Organise matched and unmatched samples into a list
     l_a_data              <- list(unmatched_data = flood_sub, matched_data = matched_sub)
 
-    l_a_descriptives      <- lapply(lapply(l_a_data, function(x) { as.data.frame(lapply(x[des_vars], function(x) { as.numeric(as.character(x)) })) }), function(x) {
-        descriptives <- c('mean', 'median', 'sd', 'min', 'max')
-        df <- data.frame(matrix(, nrow = ncol(x), ncol = 0))
-        for(i in descriptives) {
-            df[,i] <- sapply(x, i, na.rm = TRUE)
-        }
-        rownames(df) <- colnames(x)
-        return(df)
-    })
+    l_a_descriptives      <- lapply(lapply(l_a_data, function(x) { as.data.frame(lapply(x[des_vars], function(x) { as.numeric(as.character(x)) })) }), makeDescriptives)
 
     ## Do the linear regression on the pre and post matched samples #
     l_a_model             <- lapply(l_a_data, function(data) {
@@ -77,20 +70,27 @@ DiDiD <- function(ldf) {
     return(results)
 }
 
+## huxreg(results[["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
 
-loop <- seq(1,100)
-montecarlo <- list()
 
-for(i in loop) {
+## loop <- seq(1,100)
+## montecarlo <- list()
 
-    set.seed(i)
+## for(i in loop) {
 
-    montecarlo[[i]] <- DiDiD(ldf)
+##     set.seed(i)
 
-}
+##     montecarlo[[i]] <- DiDiD(ldf)
+
+## }
+
+
+set.seed(20)
+results <- DiDiD(ldf)
+
 
 ## Remove reserved 'data' variable used for partial residual analysis #
-rm(data)
+## rm(data)
 
 
 #################################################################

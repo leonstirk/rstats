@@ -28,6 +28,16 @@ clean_summary  <- function(lmcoef, digits) {
     coefs
 }
 
+makeDescriptives <- function(x) {
+    descriptives <- c('mean', 'median', 'sd', 'min', 'max')
+    df <- data.frame(matrix(, nrow = ncol(x), ncol = 0))
+    for(i in descriptives) {
+        df[,i] <- sapply(x, i, na.rm = TRUE)
+    }
+    rownames(df) <- colnames(x)
+    return(df)
+}
+
 ## subsetByVar <- function(data, key, value) {
 ##  return(data[which(data[,key] == value),])
 ## }

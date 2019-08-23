@@ -1,7 +1,5 @@
 ## Other crap
 
-robustness checking for non-determinism in matching
-
 CEM matching routine implementation
 
 ########################################
@@ -22,3 +20,7 @@ Coromandel
   - matching routines to compare samples across townships/settlements
   - spatial ag
 
+Student allowance rental market prices
+
+Value capture in government funded transport corridors: analysis of
+North Shore Park-n-Ride.
