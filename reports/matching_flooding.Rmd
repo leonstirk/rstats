@@ -14,9 +14,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Intro
 
-On the 4th of June 2015 South Dunedin experienced a flooding event. At the time, news outlets reported that 400 emergency call were made regarding the flooding, and that the army, firefighters, and volunteers had sandbagged around 100 houses. Later measurements of surface ponding depth indicated a significant amount of ponding of up to 30 centimetres in depth over the approximately 2.5 square kilometres that were worst affected. A smaller number of measurements were significantly higher with some measurements in the range of 50 to 60 centimetres of ponding above ground level.
+On the 4th of June 2015 South Dunedin experienced a flooding event. At the time, news outlets reported that 400 emergency calls were made regarding the flooding, and that the army, firefighters, and volunteers had sandbagged around 100 houses. Later measurements indicated that surface ponding reached depths of up to 30 centimetres over the approximately 2.5 square kilometres that were worst affected. A smaller number of measurements were significantly higher with some in the range of 50 to 60 centimetres of ponding above ground level.
 
-The effects of the weather event that that precipitated the flooding event were not limited to South Dunedin. The heavy rain caused slips that necessitated the closure of roads. Several schools were evacuated and there was a significant threat to property in the surrounding semi-rural areas built on the floodplain of the Taieri river. However, it is specifically the flooding in South Dunedin, rather than the more widespread effects of the severe weather event, that is of primary interest in this paper. 
+The effects of the weather that that precipitated the flooding event were not limited to South Dunedin. The heavy rain caused slips that necessitated the closure of roads. Several schools were evacuated and there was a significant threat to property in the surrounding semi-rural areas built on the floodplain of the Taieri river. However, it is specifically the flooding in South Dunedin, rather than the more widespread effects of the severe weather event, that is of primary interest in this paper. 
 
 The analysis presented in this paper examines the Dunedin real-estate market and produces estimates of the impact of the 2015 flooding event on residential property prices. The intention is to provide an understanding of the market response to natural hazard risk and changing information about those risks in the face of a destructive event.
 
@@ -32,7 +32,7 @@ Dunedin has around 2700 residences located within 50 centimetres of the spring h
 knitr::include_graphics(c('../images/south_dunedin_aerial_1.jpg','../images/south_dunedin_aerial_2.jpg', '../images/south_dunedin_aerial_3.jpg'))
 ```
 
-Geologically, the South Dunedin plain was formed in the last glacial period when the sea-level was significantly lower than it is now. Beneath the plain is a valley of volcanic bedrock. During this glacial period the catchment area that is now the Otago harbour drained through this valley out toward the coast depositing sands, silts, and gravels along the valley bed. As the sea rose to its current level, these sands, silts, and gravels consolidated in the valley to form a relatively flat plain. Prior to European settlement, the area of land on this plain that was suitable to be built upon was considerably smaller than it is today. The spring-high tide mark on both the harbour side and to the south extended significantly further inland than the present day coastline. There were large areas of wetland in what are now the suburbs of Musselburgh and St Kilda that drained into a saltwater lagoon inland of the modern high tide mark.
+Geologically, the South Dunedin plain was formed in the last glacial period when the sea-level was significantly lower than it is now. Beneath the plain is a valley of volcanic bedrock. During this glacial period the catchment area that is now the Otago harbour drained through this valley out toward the coast depositing sands, silts, and gravels along the valley bed. As the sea rose to its current level, these sands, silts, and gravels consolidated in the valley to form a relatively flat plain. Prior to European settlement, the area of land on this plain that was suitable to be built upon was considerably smaller than it is today. The spring-high tide mark on both the harbour side and to the south of the plain extended significantly further inland than the present day coastline. There were large areas of wetland in what are now the suburbs of Musselburgh and St Kilda that drained into a saltwater lagoon inland of the modern high tide mark.
 
 ```{r, out.width='50%', fig.align='center', echo = FALSE}
 knitr::include_graphics(c('../images/sd_historical_1.jpg','../images/sd_historical_2.jpg','../images/sd_historical_3.jpg'))
@@ -124,23 +124,23 @@ not\_flooded &= \left \{
 \end{aligned}
 $$
 
-In general, then, the independent variables of interest are some combination of the flood-related treatments (with respect to time or location). And the response variable is, of course, price.
+In general, the independent variables of interest in the regression analysis are a combination of the flood-related treatments (with respect to time or location). The response variable is the natural log of the net sale price associated with each observation.
 
-The gold standard in experimental design, whenever a researcher is interested in the causal effects of treatments, is the randomised control trial. A randomised contol trial is an experimental design method where the researcher collects a random sample of units, and randomly assigns each to either the treatment or control group. It is generally accepted that the effect of the treatment that is subsequently observed is a causal one. The core principle is that by randomising the treatment across the sample, the researcher will, by the law of large numbers, have eliminated any correlation between the treatment and either observed or unobserved characteristics across the treatment and control groups.
+The gold standard in experimental design, whenever a researcher is interested in the causal effects of treatments, is the randomised control trial. A randomised contol trial is an experimental design method where the researcher randomly samples the population of interest, then randomly assigns each unit of observation to either the treatment or control group. The treatment of interest is applied to the treatment group and the difference in the means of the variable of interest is generally accepted to be the causal effect of the treatment. The principle is that by randomising the treatment across the sample, the researcher will, by the law of large numbers, have eliminated any correlation between the treatment and either observed or unobserved characteristics across the treatment and control groups.
 
-In ideal circumstances, the randomisation of units to the treatment and control groups will control for other variables so a simple difference in means test will suffice to determine the causal effect of the treatment. A more detailed discussion of randomised control trials appears in the substantive conceptual section. Suffice it to say for now that randomised control trials under ideal conditions reduce, to the point of elimination, the burden of model specification.
+In ideal circumstances, the randomisation of units to the treatment and control groups will control for all other variables whether observed or not. Consequently, a simple difference in means test is, in theory, sufficient to identify the effect of the treatment on the response variable. A more detailed discussion of randomised control trials appears in the substantive conceptual section. Suffice it to say for now that randomised control trials under ideal conditions reduce, to the point of elimination, the burden of specifying a model to control for characteristics other than the treatment.
 
-The randomised control trial design however, requires the ability to randomly assign units of observation to the treatment and control groups over a given sample. Unfortunately, outside of a laboratory environment, it is unusual for observational data (of the sort used in econometric studies) to satisfy this requirement. The assignment of units to treatment or control groups is usually outside of the control of the researcher. And even in cases where the data can be thought of as a 'natural experiment' the treatment is usually less than completely random.
+The crucial component in the design of the randomised control experiment, requires the ability to randomly assign units of observation to the treatment and control groups over a given sample. Unfortunately, outside of a laboratory environment, it is unusual that observational data sets (of the sort used in many econometric analyses) satisfy this requirement. The assignment of units to treatment or control groups usually lies beyond of the control of the researcher. And, any data generated in such a way can not be thought of as satisfying the design requirements of the randomised control trial. This is because the researcher is unable to confirm the independence of the assignment of units of observation to the treatment of control groups.
 
-Without the ability to design a randomised control experiment. The researcher makes use of other tools to determine causality. Arguably the most common of these is some form of least squares regression. By controlling for the variation in the response variable associated with variations in independent variables that are not of interest, the researcher can isolate the effect of the independent variable of interest on the dependent variable.
+Without the ability to design a randomised control experiment, the researcher makes use of other tools to determine causality. Arguably the most common of these is some form of least-squares regression. By controlling for the variation in the response variable associated with variations in independent variables that are not of interest, the researcher can isolate the effect of the independent variable of interest on the response variable.
 
-It is well established that regression analysis is prone to error. The source of error that this paper is primarily concerned with is model misspecification error. Model misspecification error can arise where there is poorly specified functional form. For example, unmodelled interactions between observed characteristics, or imposed linearity on a non-linear parameter. Model misspecification might also be thought of as error due to omitted, and therefore presumably unobserved, variables.
+It is well established that regression analysis is prone to error. The source of error that this paper is primarily concerned with is model misspecification error. Model misspecification error can arise where there is poorly specified functional form. For example, unmodelled interactions between observed characteristics, or non-linear parameters with an imposed linear modelling constraint. Model misspecification might also be thought of as bias arising from omitted, and therefore presumably unobserved, variables.
 
-In observational data sets, the inability of the researcher to allocate the treatment randomly across units of observation means that bias arising from unobserved variables cannot be reduced by any process. However, the ability to match the treated and control observations on their observable characteristics reduces model dependence. The effect of this is to reduce the impact of bias arising from model misspecification.
+In observational data sets, the inability of the researcher to allocate the treatment randomly across units of observation means that bias arising from unobserved variables cannot be reduced by any process including matching. However, the ability to match the treated and control observations on their observable characteristics reduces model dependence. The effect of this is to reduce the impact of bias arising from model misspecification.
 
-Matching is a process by which the researcher can (imperfectly) simulate the design of a randomised control trial with observational data. By ensuring that the treatment and control groups are similar with respect to the distributions of their observable variables, a given model will produce a less biased estimate of the treatment effect. This paper will refer to the reduction in the imbalance in the distributions of characteristics across treatment groups as 'sample imbalance reduction' for the sake of brevity. As has been previously explained, reduction (to the point of elimination) of sample imbalance (across both observable and unobservable variables) is the objective of the design of the randomised control trial. While imbalance across unobservable variables cannot be achieved in observational data, matching does allow for the reduction of imbalance across observable characteristics.
+Matching is a process by which the researcher can (imperfectly) simulate the design of a randomised control trial with observational data. By ensuring that the treatment and control groups are similar with respect to the distributions of their observable variables, a given model will produce a less biased estimate of the treatment effect. This paper will refer to the reduction in the imbalance in the distributions of characteristics across treatment groups as 'sample imbalance reduction'. As has been previously explained, reduction (to the point of elimination) of sample imbalance (across both observable and unobservable variables) is the objective of the design of the randomised control trial. While post-hoc imbalance reduction across unobservable variables cannot be achieved in observational data, matching does allow for the reduction of imbalance across observable characteristics.
 
-One of the main functions of this paper is to understand the the effect of matching, and therefore reduced model dependence, on estimates produced using fairly conventional econometric methods. For each treatment specification, a comparison of a matched, and unmatched sample regression are presented. The differences and similarities across the regression coefficients are interpreted with the aid of effect-plus-partial-residual plots.
+One of the main functions of this paper is to understand how matching, and therefore reduced model dependence, improves estimates of treatment effects in residential real-estate data. For each treatment specification, a comparison of a matched, and unmatched sample regression are presented. The differences across the regression coefficients are interpreted with the aid of effect-plus-partial-residual plots and bootstrapped matched samples.
 
 The regression specifications are as follows:
 
@@ -150,11 +150,45 @@ lnP = \alpha + \delta_1 flood\_prone + \delta_2 after\_flood + \delta_3 flood\_p
 lnP = \alpha + \delta_1 FP + \delta_2 AF + \delta_3 F + \delta_4 FP \cdot AF + \delta_5 F \cdot AF + \delta_6 FP \cdot F \cdot AF + \beta X + \gamma t + u
 $$
 
+## choice of matching methods and data etc.
+
+The matching method employed in this paper uses one-to-one matching without replacement and matches exactly on binary indicator variables while minimising the mahalanobis distance in the continuous variables. To clarify, the matching process takes a set of treated observations as input. For each treated observation the matching program finds the set of control observations that are an exact match in all of the binary varibles. It then identifies the control observation that is the nearest neighbour as measured by mahalanobis distance. The two observations are stored as a match and the control observation is removed from the pool of potential matches. The matching process then moves on to the next treatment observation and repeats the process. It is clear that the the set of matches resulting from this iterative process without replacement will differ according to the ordering of the of the initial set of treated observations. The matched samples produced will not be deterministic. for the purposes of this analysis this is a desirable property. So, depite the fact that the selected matching process may not produce matched samples that all lie on the imbalance-sample size frontier, it does produce matched samples that are comparable in n and also have variation in imbalance reduction and the estimates of the effect of interest. Why is this desirable? It serves to illustrate the fact that with respect to a given model specification, that some estimates of interest are clearly and systematically affected by sample imbalance bias. That is, samples with any degree of reduced sample imbalance are unequivocally at odds with the direction, size, and/or significance of the estimates produced by the unmatched sample.
+
 ## A brief discussion of results 
 
-Prior to the June 2015 floods the market does not appear to price flood-risks in a way that is statistically detectable when comparing the low-lying South Dunedin plain to the remainder of Dunedin. A hedonic regression specification estimating the price effect of being located on the South Dunedin plain is carried out over the 3 year period leading up to the flood event. In the period prior to the flood both matched and unmatched sample estimates produce results camparably close to null. 
+Estimates were produced for the discount associated with being located on the South Dunedin plain in the three years leading up to the June 2015 floods. The estimate of the effect of being located on the "South Dunedin plain" (the flood_prone variable) was -2.6% and significant at the 5% level. The same model specification is used to estimate the location effect on a series of matched samples. The results are 
 
-A regression with the same specification is carried out over the three year period following the flood event. After the flood the unmatched regression estimates a highly significant 4.15% discount associated with the South Dunedin plain compared with the rest of Dunedin. The matched sample regressions are more circumspect with respect to the size and significance of the estimated discount. They estimate around a 2.1% discount associated with being low-lying with a mean level of significance of 6.3%. This implies that the June 2015 flood provided an impetus for the market to re-evaluate the pricing of flood-risks on the South Dunedin plain.
+```{r D_3_yr_before_flood, echo=FALSE}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/D.R')
+
+mc_BF <- readRDS('bootstrapped_regressions/D_BF.rds')
+set.seed(Most_Sig_Result_Seed(mc_BF, "treatment"))
+D_BF <- D(flood_data_subsets[["F1"]])
+
+layout(matrix(seq(1,2,1),2,1))
+KDE_MC_SIG(mc_BF, D_BF, 'treatment')
+KDE_MC_EST(mc_BF, D_BF, 'treatment')
+
+huxreg(D_BF[["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
+
+rm(data)
+```
+
+The matched sample indicates that there is no statistically detectable discount associated with being located on the South Dunedin plain. The unmatched sample has estimated a highly significant discount as a consequence of the low degree of balance across the distributions of sample characteristics. Clearly, the unmatched and matched samples give different answers to the first central question of: How did the real-estate market in Dunedin price flood risks prior to the June 2015 flood?
+
+The second question to be answered is if and how the market changed the way it priced properties located on the South Dunedin plain as a consequence of the flood. A difference-in-differences regression was carried out across both a matched and unmatched sample to determine the additional location discount arising as a consequence of the flooding.
+
+```{r DiD_FP_NFP_regression, echo=FALSE}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/DiD.R')
+set.seed(20)
+results <- DiD(FP_NFP)
+huxreg(results[["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
+rm(data)
+```
+
+The estimates on the interaction of the "after_flood" and "flood_prone" variables produce similar results across both the unmatched and matched samples. However it is worth noting that the matched and unmatched samples differ in the coefficient estimate on the "flood_prone" variable. These estimates are consistent with the earlier results. The matched sample continues to indicate that there is no statistical discount associated with location alone. The unmatched sample continues to indicate that there is a significant discount associated with location while controlling for the impact of the flood event. 
 
 ###########################################
 
@@ -281,11 +315,68 @@ SECTION ONE
 
 The first substantive section will examine the data for the presence of a statistically significant discount associated with properties situated on the floodplain. The regression model is as follows:
 
-$$lnP=α+δfloodplain+βX+γt+u$$
+$$lnP=\alpha + \delta flood\_prone + \beta X + \gamma t + u$$
 
 The dependent variable lnP is the natural log of the net sale price at the time of sale. X is a vector property characteristics outlined in the data section. T is a vector of annual dummy variables and the variable of interest is whether the property is situated on the floodplain or not. Floodplain takes on the value 0 where the property is situated outside of the floodplain and takes on the value 1 where the property is inside the floodplain. As outlined in the data section, this research defines the floodplain along meshblock boundaries taking guidance from the ORC REPORT INSERT REFERENCE. 
 
 
+
+```{r DiD_F_NFP_regression, echo=FALSE}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/DiD.R')
+set.seed(20)
+results <- DiD(F_NFP)
+huxreg(results[["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
+rm(data)
+```
+
+```{r DiD_F_NFP_KDE_plots, echo=FALSE,results='hide',fig.keep='all'}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/DiD.R')
+set.seed(20)
+results <- DiD(F_NFP)
+
+for(i in 1:length(mah_vars)) {
+  layout(matrix(seq(1,2,1),1,2))
+  lapply(names(results[["model_data"]]), function(x) {
+    k <- results[["model_data"]][[x]]
+    print(densityCompare(k[,mah_vars[i]], k[,'treatment'], mah_vars[i], paste(c("Sample balance in distribution of", mah_vars[i], "in", x), collapse = " ")))
+  })
+}
+
+rm(data)
+```
+
+```{r DiD_F_NFP_partials_scale, echo=FALSE,results='hide',fig.keep='all'}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/DiD.R')
+set.seed(20)
+results <- DiD(F_NFP)
+for(i in c(seq(2,5,1),14)) {
+print(partial_comparison_plot_scale(results, model_strings[i], model_vars[i]))
+}
+rm(data)
+```
+
+```{r DiD_F_NFP_partials_factor, echo=FALSE,results='hide',fig.keep='all'}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/DiD.R')
+set.seed(20)
+results <- DiD(F_NFP)
+for(i in c(6:8,11:13,15)) {
+print(partial_comparison_plot_factor(results, model_strings[i]))
+}
+rm(data)
+```
+
+```{r DiD_F_NFP_partials_interaction, echo=FALSE,results='hide',fig.keep='all'}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/DiD.R')
+set.seed(20)
+results <- DiD(F_NFP)
+print(partial_comparison_plot_interaction(results, "treatment", "after_flood:treatment"))
+rm(data)
+```
 
 ## Conclusions
 

@@ -1,6 +1,7 @@
 ####################################################################################################################################################
 
 source('scripts/flooding_analysis_prep.R')
+source('functions/graphing.R')
 
 ####################################################################################################################################################
 
@@ -15,15 +16,10 @@ DiDiD <- function(ldf) {
     ldf_t                 <- lapply(ldf, function(df) { list('before_flood' = subset(df, after_flood == 0), 'after_flood' = subset(df, after_flood == 1)) })
 
     ## Do Exact + Mahalanobis (without replacement) matching on before_flood and after_flood groups #
-    l_m                   <- lapply(ldf_t, function(ldf) { lapply(ldf, function(df) { matchSamples(df) }) })
+    l_m                   <- lapply(ldf_t, function(ldf) { lapply(ldf, function(df) { matchMahExactNoRep(df) }) })
 
     l_m_out               <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[1]] }) })
     l_m_data              <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[2]] }) })
-    ## l_m_matches           <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[3]] }) })
-
-    ## Do CEM matching on before_flood and after_flood groups
-
-
 
     ## Recombine the post matching sample #
     matched_sub           <- rbind(l_m_data[[1]][[1]],l_m_data[[1]][[2]],l_m_data[[2]][[1]],l_m_data[[2]][[2]])
@@ -51,46 +47,99 @@ DiDiD <- function(ldf) {
     l_a_fit_summary       <- lapply(l_a_fit, summary)
 
     ## Summarise post match balance improvement
-    l_bal_sum             <- lapply(l_m_out, summary)
-    l_bal_sum_std         <- lapply(l_m_out, function(m_out) { summary(m_out, standardize=TRUE) })
+    l_bal_sum_std         <- lapply(l_m_out, function(m_out) { lapply(m_out, function(x) { summary(x, standardize=TRUE) }) })
 
-    results <- list(
-        ## 'match_output' = l_m_out,
-        ## 'match_data' = l_m_data,
-        ## 'match_matches' = l_m_matches,
-        ## 'model_data' = l_a_data,
-        ## 'model_fit' = l_a_fit,
-        ## 'model_partials' = l_a_partials,
-        ## 'descriptives' = l_a_descriptives,
-        'model_summary' = l_a_fit_summary
-        ## 'balance_summary' = l_bal_sum,
-        ## 'balance_summary_standardised' = l_bal_sum_std
-    )
+    return(list(
+        'match_output' = l_m_out,
+        'model_data' = l_a_data,
+        'model_fit' = l_a_fit,
+        'model_partials' = l_a_partials,
+        'descriptives' = l_a_descriptives,
+        'model_summary' = l_a_fit_summary,
+        'balance_summary_standardised' = l_bal_sum_std
+    ))
+}
 
-    return(results)
+DiDiD_MC <- function(ldf) {
+
+    ## Assign treatment variable #
+    ldf                   <- Map(cbind, ldf, treatment = lapply(ldf, function(df) { df$treatment <- ifelse(df$flood == 1,1,0) }))
+
+    ## Split into before_flood and after_flood groups respectively #
+    ldf_t                 <- lapply(ldf, function(df) { list('before_flood' = subset(df, after_flood == 0), 'after_flood' = subset(df, after_flood == 1)) })
+
+    ## Do Exact + Mahalanobis (without replacement) matching on before_flood and after_flood groups #
+    l_m                   <- lapply(ldf_t, function(ldf) { lapply(ldf, function(df) { matchMahExactNoRep(df) }) })
+
+    l_m_out               <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[1]] }) })
+    l_m_data              <- lapply(l_m, function(area_diff) { lapply(area_diff, function(time_diff) { time_diff[[2]] }) })
+
+    ## Recombine the post matching sample #
+    matched_sub           <- rbind(l_m_data[[1]][[1]],l_m_data[[1]][[2]],l_m_data[[2]][[1]],l_m_data[[2]][[2]])
+
+    ## Specify the linear regression model parameters (diff in diff in diff)#
+    model_formula         <- as.formula(paste("ln_sale_price ~ after_flood*flood_prone*flood + ",model_all))
+
+    ## Do the linear regression on the pre and post matched samples #
+    fit <- lm(model_formula, data = matched_sub)
+
+    ## Summarise post match balance improvement
+    l_bal_sum_std         <- lapply(l_m_out, function(m_out) { lapply(m_out, function(x) { summary(x, standardize=TRUE) }) })
+
+    return(list(
+        'match_output' = l_m_out,
+        'balance_summary_standardised' = l_bal_sum_std,
+        'model_data' = matched_sub,
+        'model_fit' = fit
+    ))
 }
 
 ## huxreg(results[["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
 
+############################
+## Montecarlo match object #
+############################
 
 ## loop <- seq(1,100)
-## montecarlo <- list()
+## montecarlo_match_DiDiD <- list()
 
 ## for(i in loop) {
-
+##     start.time <- Sys.time()
 ##     set.seed(i)
-
-##     montecarlo[[i]] <- DiDiD(ldf)
-
+##     montecarlo_match_DiDiD[[i]] <- DiDiD_MC(ldf)
+##     end.time <- Sys.time()
+##     time.taken <- end.time - start.time
+##     print(time.taken)
+##     print(i)
 ## }
 
+############################
+## Single run match object #
+############################
 
-set.seed(20)
-results <- DiDiD(ldf)
+## DiDiD <- DiDiD(ldf)
 
 
-## Remove reserved 'data' variable used for partial residual analysis #
-## rm(data)
+####################
+## Graphing stuff ##
+####################
+
+## mc_DiDiD <- readRDS('bootstrapped_regressions/DiDiD.rds')
+## set.seed(Most_Sig_Result_Seed(mc_DiDiD, "after_flood1:flood1"))
+## DiDiD <- DiDiD(ldf)
+
+## layout(matrix(seq(1,10,1),2,5))
+## KDE_MC_SIG(mc_DiDiD, DiDiD, 'after_flood1')
+## KDE_MC_EST(mc_DiDiD, DiDiD, 'after_flood1')
+## KDE_MC_SIG(mc_DiDiD, DiDiD, 'flood_prone1')
+## KDE_MC_EST(mc_DiDiD, DiDiD, 'flood_prone1')
+## KDE_MC_SIG(mc_DiDiD, DiDiD, 'flood1')
+## KDE_MC_EST(mc_DiDiD, DiDiD, 'flood1')
+## KDE_MC_SIG(mc_DiDiD, DiDiD, 'after_flood1:flood_prone1')
+## KDE_MC_EST(mc_DiDiD, DiDiD, 'after_flood1:flood_prone1')
+## KDE_MC_SIG(mc_DiDiD, DiDiD, 'after_flood1:flood1')
+## KDE_MC_EST(mc_DiDiD, DiDiD, 'after_flood1:flood1')
+
 
 
 #################################################################
@@ -131,8 +180,6 @@ results <- DiDiD(ldf)
 ## }
 ## dev.off()
 
-###########################################################################################
-
 ##########################################################
 ## Generate factor partial plots using model_strings[6:] #
 ##########################################################
@@ -164,8 +211,6 @@ results <- DiDiD(ldf)
 
 ## dev.off()
 
-###########################################################################################
-
 ######################
 ## Interaction plots #
 ######################
@@ -183,16 +228,9 @@ results <- DiDiD(ldf)
 
 ## dev.off()
 
-###########################################################################################
-
-##################
-## Balance plots #
-##################
-## l_bal_plot <- lapply(l_m_out, plot)
-## l_bal_plot_sum <- lapply(l_m_out, function(m_out) { plot(summary(m_out, standardize=TRUE)) })
-
 ##############
 ## Geo plots #
 ##############
 ## raw_plot <- ggplot(unmatched_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
 ## dnd_plot <- ggplot(matched_sub, aes(lon_gd2000_x, lat_gd2000_y, color = flood_analysis_group)) + geom_point()
+

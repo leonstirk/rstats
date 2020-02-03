@@ -1,0 +1,40 @@
+---
+title: "hello"
+author: "Leon Stirk-Wang"
+date: "9/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r D_3_yr_before_flood_descriptives, echo=FALSE}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/D.R')
+set.seed(20)
+results <- D(flood_data_subsets[["F1"]])
+tcDescriptives(flood_data_subsets[["F1"]], des_vars)
+ht <- hux(doDescriptives(results[["match_data"]], des_vars), add_colnames = TRUE, add_rownames = TRUE)
+ht %>% set_bottom_border(1, everywhere, 2) %>% set_align(everywhere, everywhere, 'right') %>% set_number_format(2)
+huxreg(results[["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
+```
+
+```{r D_3_yr_before_flood, echo=FALSE}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/D.R')
+set.seed(20)
+results <- D(flood_data_subsets[["F1"]])
+
+for(i in 1:length(mah_vars)) {
+  layout(matrix(seq(1,2,1),1,2))
+  lapply(names(results[["model_data"]]), function(x) {
+    k <- results[["model_data"]][[x]]
+    print(densityCompare(k[,mah_vars[i]], k[,'treatment'], mah_vars[i], paste(c("Sample balance in distribution of", mah_vars[i], "in", x), collapse = " ")))
+  })
+}
+
+rm(data)
+```

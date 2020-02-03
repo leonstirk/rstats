@@ -7,36 +7,65 @@ source('scripts/das_data_preprocessing.R')
 homeowner_rates <- sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$homeowner_rate)})
 dist_cbds <- sapply(levels(das$area_unit_name), function(x) {mean(das[which(das$area_unit_name == x),]$dist_cbd)})
 
-##################################################################################################################
-## Get a vector of student areas by au_name (homeowner_rate < 0.46) (adding "South Dunedin" back in to analysis) #
-##################################################################################################################
-
-studentAUs <- function(vec, threshold, exclude) {
+returnAboveThreshold <- function(vec, threshold, exclude) {
   names <- names(vec[vec < threshold])
   return(names[!names %in% exclude])
 }
 
-student_areas <- studentAUs(homeowner_rates, 0.46, c('South Dunedin'))
-
-rm(studentAUs)
-
-#####################################################################################
-## Get a vector of harbour areas from st leonards to port chalmers (dist_cbd > 5km) #
-#####################################################################################
-
-harbourAUs <- function(vec, threshold, exclude) {
+returnBelowThreshold <- function(vec, threshold, exclude) {
   names <- names(vec[vec > threshold])
   return(names[!names %in% exclude])
 }
 
-harbour_areas <- harbourAUs(dist_cbds, 5, c())
+ho_threshold <- 0.46
+dist_threshold <- 5
 
-rm(harbourAUs)
+## Get a vector of student areas by au_name (homeowner_rate < 0.46) (adding "South Dunedin" back in to analysis) #
+student_areas <- returnAboveThreshold(homeowner_rates, ho_threshold, c('South Dunedin'))
 
-#########################################################
+## Get a vector of harbour areas from st leonards to port chalmers (dist_cbd > 5km) #
+harbour_areas <- returnBelowThreshold(dist_cbds, dist_threshold, c())
+
 ## Remove student_areas and harbour_areas from analysis #
-#########################################################
-flood_sub <- das[which(!(das$area_unit_name %in% c(student_areas, harbour_areas))),]
+das <- das[which(!(das$area_unit_name %in% c(student_areas, harbour_areas))),]
+
+## plot the excuded area_units
+tmp <- as.data.frame(cbind(area_unit_name = names(homeowner_rates), homeowner_rates, dist_cbds, excluded = ifelse(names(homeowner_rates) %in% c(harbour_areas, student_areas), 1, 0)))
+tmp[2:3] <- lapply(tmp[2:3], function(x){as.numeric(as.character(x))})
+tmp$excluded <- relevel(tmp$excluded, "1")
+
+tmp <- transform(tmp, area_unit_name=reorder(area_unit_name, -homeowner_rates))
+splot <- ggplot(tmp, aes(area_unit_name, homeowner_rates)) + geom_bar(stat = "identity", aes(fill = excluded)) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + geom_hline(yintercept = ho_threshold) + scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.46, 0.6, 0.8))
+
+tmp <- transform(tmp, area_unit_name=reorder(area_unit_name, -dist_cbds))
+hplot <- ggplot(tmp, aes(area_unit_name, dist_cbds)) + geom_bar(stat = "identity", aes(fill = excluded)) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + geom_hline(yintercept = dist_threshold) + scale_y_continuous(breaks = c(0, 2, 4, 5, 6, 8, 10))
+
+## multiplot(
+##     splot,
+##     hplot,
+##     cols = 2
+##     )
+
+rm(tmp, ho_threshold, dist_threshold)
+
+################################################################################
+## Map the area units and do something with it
+
+
+## library(rgdal) # for readOGR
+## library(sp)    # for spplot
+
+## # Reading shapefile
+## cau = readOGR(dsn='/Users/lap44/Dropbox/research/2015/census/2014 Digital Boundaries Generlised Clipped', layer='AU2014_GV_Clipped')
+
+## # Joining with school ethnicity data (notice we refer to @data, as cau contains spatial info as well)
+## cau@data = data.frame(cau@data, hhi[match(cau@data[,"AU2014_NAM"], hhi[,"Census.Area.Unit"]),])
+
+## # Limiting map to the area around Christchurch
+## spplot(cau, zcol = "hn", xlim = c(1540000, 1590000), ylim= c(5163000, 5198000))
+
+################################################################################
+
 
 rm(student_areas, harbour_areas, homeowner_rates, dist_cbds)
 
@@ -72,7 +101,7 @@ kilda_central_mbs <- getMBsByAU(das, "St Kilda Central")
 kilda_east_mbs    <- getMBsByAU(das, "St Kilda East")
 
 ##########################
-## Hand coded meshblocks # 
+## Hand coded meshblocks #
 ##########################
 
 ## c(2927400, 2926100, 2947300, 2927000, 2948300) #
@@ -181,13 +210,78 @@ rm(mb_2927400_nonflood, mb_2926100_nonflood, mb_2947300_flood, mb_2947300_nonflo
 ## Assign area dummies #
 ########################
 
-flood_sub$flood           <- ifelse(flood_sub$meshblock_id %in% flood_mbs | flood_sub$qpid %in% flood_obs,1,0)
-flood_sub$non_flood       <- ifelse(flood_sub$meshblock_id %in% nonflood_mbs | flood_sub$qpid %in% nonflood_obs,1,0)
+das$flood           <- ifelse(das$meshblock_id %in% flood_mbs | das$qpid %in% flood_obs,1,0)
+das$non_flood       <- ifelse(das$meshblock_id %in% nonflood_mbs | das$qpid %in% nonflood_obs,1,0)
 
-flood_sub$flood_prone     <- ifelse(flood_sub$flood == 1 | flood_sub$non_flood == 1,1,0)
-flood_sub$non_flood_prone <- ifelse(flood_sub$flood_prone == 1,0,1)
+das$flood_prone     <- ifelse(das$flood == 1 | das$non_flood == 1,1,0)
+das$non_flood_prone <- ifelse(das$flood_prone == 1,0,1)
 
-flood_sub$flood_analysis_group <- as.factor(flood_sub$non_flood_prone + flood_sub$non_flood*2 + flood_sub$flood*3)
-flood_sub$flood_analysis_group <- mapvalues(flood_sub$flood_analysis_group, from = levels(flood_sub$flood_analysis_group), to = c("non_flood_prone", "non_flood", "flood"))
+das$flood_analysis_group <- as.factor(das$non_flood_prone + das$non_flood*2 + das$flood*3)
+das$flood_analysis_group <- mapvalues(das$flood_analysis_group, from = levels(das$flood_analysis_group), to = c("non_flood_prone", "non_flood", "flood"))
+
+flood_vars <- c("flood", "non_flood", "flood_prone", "non_flood_prone")
+das[flood_vars] <- lapply(das[flood_vars], as.factor)
 
 rm(flood_mbs, nonflood_mbs, flood_obs, nonflood_obs)
+
+
+## Describe generated variables
+ht <- hux(
+    "Variable name" = c('flood', 'non_flood', 'flood_prone', 'non_flood_prone', 'after_flood'),
+    Description = c('Properties located in areas with measurable above ground ponding during the 4th June floods',
+                    'Properties located on the South Dunedin plain in areas that did not experience measurable surface ponding',
+                    'The sum of the properties in the previous two groups i.e. properties in the "flood" group or "non_flood" group',
+                    'Properties not located on the South Dunedin plain',
+                    'Transactions occuring after the 4th June 2015'),
+    add_colnames = TRUE
+)
+
+bottom_border(ht)[1,]  <- 2
+right_padding(ht)      <- 10
+left_padding(ht)       <- 10
+width(ht)              <- 1
+col_width(ht)          <- c(0.3, 0.7)
+valign(ht)             <- 'bottom'
+flood_variables        <- map_wrap(ht, by_cols(FALSE, TRUE))
+rm(ht)
+
+## Crosstab, frequencies by generated variables
+floodVariablesSummary <- function(das) {
+    ht <- hux(
+        "Variable names" = c('flood', 'non_flood', 'flood_prone', 'non_flood_prone', 'Total'),
+        before_flood = c(length(which(das[which(das$after_flood == 0), "flood"] == 1)),
+                         length(which(das[which(das$after_flood == 0), "non_flood"] == 1)),
+                         length(which(das[which(das$after_flood == 0), "flood_prone"] == 1)),
+                         length(which(das[which(das$after_flood == 0), "non_flood_prone"] == 1)),
+                         length(which(das$after_flood == 0))
+                         ),
+        after_flood = c(length(which(das[which(das$after_flood == 1), "flood"] == 1)),
+                        length(which(das[which(das$after_flood == 1), "non_flood"] == 1)),
+                        length(which(das[which(das$after_flood == 1), "flood_prone"] == 1)),
+                        length(which(das[which(das$after_flood == 1), "non_flood_prone"] == 1)),
+                        length(which(das$after_flood == 1))
+                        ),
+        Total = c(length(which(das$flood == 1)),
+                  length(which(das$non_flood == 1)),
+                  length(which(das$flood_prone == 1)),
+                  length(which(das$non_flood_prone == 1)),
+                  nrow(das)
+                  ),
+        add_colnames = TRUE
+    )
+
+    bottom_border(ht)[1,]  <- 2
+    bottom_border(ht)[c(3,5),2:4] <- 1
+    align(ht)[,2:3]        <- 'right'
+    right_padding(ht)      <- 10
+    left_padding(ht)       <- 10
+    number_format(ht)      <- 0
+    width(ht)              <- 1
+    col_width(ht)          <- rep(1/4,4)
+    ht[1,1]                <- ""
+    return(ht)
+}
+
+flood_variables_summary <- floodVariablesSummary(das)
+
+tc_descriptives <- tcDescriptives(das, "flood_prone", des_vars)

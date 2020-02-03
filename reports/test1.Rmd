@@ -1,0 +1,41 @@
+---
+title: "test1"
+author: "Leon Stirk-Wang"
+date: "10/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align = 'center')
+```
+
+## R Markdown
+
+```{r D_3_yr_before_flood_bootstrap, fig.width = 12}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/D.R')
+
+mc_BF <- readRDS('bootstrapped_regressions/D_BF.rds')
+set.seed(MedianSeed(mc_BF, "treatment"))
+D_BF <- D(flood_data_subsets[["F1"]])
+
+KDE_MC_EST(mc_BF, D_BF, 'treatment', '')
+legend("topright", lty = 1, c("Matched samples","Unmatched sample"), col = c(hue_pal()(3)[2], hue_pal()(3)[1]))
+KDE_MC_SIG(mc_BF, D_BF, 'treatment', '')
+legend("topright", lty = 1, c("Matched samples","Unmatched sample", "5% & 10% significance levels"), col = c(hue_pal()(3)[2], hue_pal()(3)[1], 'black'))
+```
+
+```{r D_3_yr_before_flood_reg}
+setwd('~/Desktop/projects/matching_estimator_flooding_south_dunedin_2000_2018/')
+source('scripts/D.R')
+
+mc_BF <- readRDS('bootstrapped_regressions/D_BF.rds')
+set.seed(MedianSeed(mc_BF, "treatment"))
+D_BF <- D(flood_data_subsets[["F1"]])
+
+ht <- huxreg(D_BF[["model_summary"]], stars = c(`***` = 0.01, `**` = 0.05, `*` = 0.1), statistics = c(N = "nobs", R2 = "r.squared"))
+ht_disp <- ht[c(1,4:5,(nrow(ht)-2):nrow(ht)),]
+bottom_border(ht_disp)[3, 2:3] <- 1
+ht_disp <- set_contents(ht_disp, 2, 1, "South Dunedin Plain")
+ht_disp
+```

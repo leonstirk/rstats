@@ -4,56 +4,36 @@ source('scripts/flooding_data_processing.R')
 
 ####################################################################################################################################################
 
-## set.seed(1000)
+#####################
+## Import functions #
+#####################
+
+## Reserve variable name 'data' for the partial residual analysis functions #
+data <- data.frame() ## rm(data) after partial residual analysis has run #
+source('functions/partial_residual_analysis_numeric_variables.R')
+source('functions/partial_plots.R')
 
 ######################
 ## Set time blocking #
 ######################
 
-years <- 3
-days <- years*365
-minus_6 <- flood_date - (days * 2)
-minus_3 <- flood_date - days
-plus_3  <- flood_date + days
+before_flood <- subset(das, sale_date > (flood_date - (365 * 4)) & sale_date < flood_date) ## Before flood only
+after_flood  <- subset(das, sale_date < (flood_date + (365 * 3.5)) & sale_date > flood_date)  ## After flood only
+flood_sub    <- subset(das, sale_date > (flood_date - (365 * 4)) & sale_date < (flood_date + (365 * 3.5)))  ## Before and after flood
 
-flood_sub$after_flood <- ifelse(flood_sub$sale_date < flood_date,0,1)
+restricted   <- subset(das, sale_date > (flood_date - (365 * 4)) & sale_date < (flood_date + (365 * 3.5)))
+restricted   <- subset(restricted, flood_prone == 1)
 
-flood_sub$after_flood     <- as.factor(flood_sub$after_flood)
-flood_sub$flood           <- as.factor(flood_sub$flood)
-flood_sub$non_flood       <- as.factor(flood_sub$non_flood)
-flood_sub$flood_prone     <- as.factor(flood_sub$flood_prone)
-flood_sub$non_flood_prone <- as.factor(flood_sub$non_flood_prone)
-
-flood_sub_1 <- subset(flood_sub, sale_date > minus_3 & sale_date < flood_date)
-flood_sub_2 <- subset(flood_sub, sale_date > minus_6 & sale_date < flood_date)
-flood_sub_3 <- subset(flood_sub, sale_date > minus_3 & sale_date < plus_3)
-
-time_window_1 <- c(minus_3, flood_date)
-time_window_2 <- c(minus_6, flood_date)
-time_window_3 <- c(minus_3, minus_6)
+flood_data_subsets   <- list('BF' = before_flood, 'AF' = after_flood, 'IF' = flood_sub, "RF" = restricted)
 
 ## Remove temporary variables #
-rm(days, minus_6, minus_3, plus_3, years)
+rm(before_flood, after_flood, flood_sub, restricted)
 
-##################################
-## Set model parameter variables #
-##################################
+bf_variables_summary <- floodVariablesSummary(flood_data_subsets[["BF"]])
+bf_sample_descriptives <- sampleDescriptivesTable(flood_data_subsets[["BF"]])
 
-source('scripts/set_model_strings.R')
+if_variables_summary <- floodVariablesSummary(flood_data_subsets[["IF"]])
+if_sample_descriptives <- sampleDescriptivesTable(flood_data_subsets[["IF"]])
 
-#####################
-## Import functions #
-#####################
-
-source('functions/match_samples.R')
-## source('functions/cem_match.R')
-
-source('functions/density_compare.R')
-
-## Reserve variable name 'data' for the partial residual analysis functions #
-data <- data.frame() ## rm(data) after partial residual analysis has run #
-source('functions/partial_residual_analysis_numeric_variables.R')
-source('functions/multiplot.R')
-source('functions/partial_plots.R')
-
-####################################################################################################################################################
+rf_variables_summary <- floodVariablesSummary(flood_data_subsets[["RF"]])
+rf_sample_descriptives <- sampleDescriptivesTable(flood_data_subsets[["RF"]])
