@@ -5,7 +5,7 @@ suppressPackageStartupMessages({
     require(data.table)
     require(MatchIt)
     require(cem)
-    require(zeligverse)
+    ## require(zeligverse)
     require(randomForest)
     require(plyr)
     require(dplyr)
@@ -50,6 +50,12 @@ das[n] <- lapply(das[n],as.numeric)
 das[f] <- lapply(das[f],as.factor)
 
 das$sale_date_1 <- as.numeric(das$sale_date)
+
+## ## create sale_month variable in ordered or unordered factor format
+## das[order(das$sale_date), c('sale_month')] <- factor(format(das[order(das$sale_date),c('sale_date')], "%Y-%m"), ordered = TRUE)
+## das[order(das$sale_date), c('sale_quarter')] <- factor(format(das[order(das$sale_date),c('sale_date')], "%Y-%m"))
+
+das$sale_quarter <- as.factor(das$sale_quarter)
 
 ## Relevel factors
 das$bedrooms <- relevel(das$bedrooms, ref = '3')

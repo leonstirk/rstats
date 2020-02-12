@@ -26,9 +26,7 @@ CEM_match <- function(u_data, breaks) {
     ))
 }
 
-MAH_match <- function(u_data, breaks, replace) {
-    if(breaks == "")
-        breaks <- setBreaks(u_data)
+MAH_match <- function(u_data, replace) {
     u_data   <- u_data[data_vars]
     m_out    <- matchit(mah_match_formula, method = "nearest", distance = "mahalanobis", data = u_data, exact = exact_vars, replace = replace)
     m_data   <- match.data(m_out)
@@ -59,7 +57,6 @@ calculateL1Profile <- function(u_data, m_out, num) {
     return(L1.profile(u_data[,treat_var], u_data[match_vars], weights=m_out$w>0, add=add, col=num, lty=num))
 }
 
-
 makeSpacegraphDataframe <- function(u_data, m_out, method) {
     if(method == "cem")
         method <- "user cem"
@@ -75,15 +72,16 @@ plotL1Profiles <- function(u_data, match_objects) {
     legend(50, 0.4, legend=c("raw data", "cem", "mahalanobis/exact with replacement", "mahalanobis/exact without replacement"), lty=1:4, col=c("black", "red", "green", "blue"), bty = "n")
 }
 
-getImbalanceDiagnostics <- function(u_data, match_objects) {
-    match_objects_imbalance <- lapply(1:length(match_objects), function(i) { calculateImbalance(match_objects[[i]][["m_data"]], "") })
-
-    names(match_objects_imbalance) <- names(match_objects)
+getImbalanceDiagnostics <- function(u_data, match_objects, cem_no) {
+    ## match_objects_imbalance <- lapply(1:length(match_objects), function(i) { calculateImbalance(match_objects[[i]][["m_data"]], "") })
+    ## names(match_objects_imbalance) <- names(match_objects)
 
     sp_df <- lapply(names(match_objects[-1]), function(x) { makeSpacegraphDataframe(u_data, match_objects[[x]][["m_out"]], x) })
-    sp <- spacegraph(treat_var, u_data[c(treat_var, match_vars)], M=100, R=list(cem=100), other.matches=sp_df)
+    sp <- spacegraph(treat_var, cbind(u_data[c(treat_var)], as.data.frame(lapply(u_data[c(match_vars)], function(x) { as.numeric(x) }))), M=100, R=list(cem=cem_no), other.matches=sp_df)
 
-    out <- list("imb" = match_objects_imbalance, "spacegraph" = sp)
+    ## out <- list("imb" = match_objects_imbalance, "spacegraph" = sp)
+    out <- sp
+
     return(out)
 }
 
@@ -154,155 +152,71 @@ FS_HT <- function(full_spec_reg_list, coefs) {
     return(ht)
 }
 
-###########
+runModel <- function(data, model_type, treat_var, inf_var, n_cem) {
+    strings[["model"]] <<- model_type
+    strings[["treat_var"]] <<- treat_var
+    strings[["inf_var"]] <<- inf_var
 
-start.time <- Sys.time()
-print(start.time)
+    do.call(setStrings, strings)
 
-###########
+    match_objects <<- list(
+    "raw" = RAW_match(data),
+    "cem" = CEM_match(data, ""),
+    "mah" = MAH_match(data, TRUE),
+    "mah_nr" = MAH_match(data, FALSE)
+    )
 
-## strings[["model"]] <- "D"
-## do.call(setStrings, strings)
+    ## plotL1Profiles(data, match_objects)
+    imbalance_diagnostics <<- getImbalanceDiagnostics(data, match_objects, n_cem)
 
+    full_spec_reg_list <<- fullSpecRegList(match_objects)
+    full_spec_partials_list <<- fullSpecPartialsList(match_objects)
+    stepwise_reg_list <<- stepwiseRegList(match_objects)
+
+    fs_ht <<- FS_HT(full_spec_reg_list, coefs)
+    st_ht <<- lapply(stepwise_reg_list, function(x) { huxreg(x, statistics = c(N = "nobs", R2 = "r.squared"))})
+
+}
+
+##########################################
+
+## start.time <- Sys.time()
 ## set.seed(20)
-## raw <- RAW_match(flood_data_subsets[["BF"]])
-## cem <- CEM_match(flood_data_subsets[["BF"]], "")
-## mah <- MAH_match(flood_data_subsets[["BF"]], "", TRUE)
-## mah_nr <- MAH_match(flood_data_subsets[["BF"]], "", FALSE)
 
-## D_match_objects <- list(
-##     "raw" = raw,
-##     "cem" = cem,
-##     "mah" = mah,
-##     "mah_nr" = mah_nr
+## ## runModel(flood_data_subsets[["BF"]], "D", "flood_prone", "", 10)
+## runModel(flood_data_subsets[["IF"]], "DiD", "flood_prone", "", 10)
+## ## runModel(flood_data_subsets[["RF"]], "DiD", "flood", "" 10)
+## ## runModel(flood_data_subsets[["IF"]], "DiDiD", "flood", "flood_prone", 10)
+
+## space <- plot(imbalance_diagnostics, scale.var = F, N = 'all')
+## print(fs_ht)
+
+## end.time <- Sys.time()
+## time.taken <- end.time - start.time
+## print(time.taken)
+
+##########################################
+
+## tmp1 <- c(rep('', length(match_vars)))
+## tmp2 <- c(rep('', length(match_vars)))
+## tmp1[which(match_vars %in% exact_vars)] <- 'Y'
+## tmp2[which(match_vars %in% mah_vars)] <- 'Y'
+
+## ht <- hux(
+##     "Variable name" = match_vars,
+##     "Variable class" = sapply(das[match_vars], class),
+##     "CEM" = rep('Y', length(match_vars)),
+##     "Mahalanobis distance" = tmp2,
+##     "Exact" = tmp1,
+##     add_colnames = TRUE
 ## )
 
-## plotL1Profiles(flood_data_subsets[["BF"]], D_match_objects)
-## imbalance_diagnostics <- getImbalanceDiagnostics(flood_data_subsets[["BF"]], D_match_objects)
-
-## full_spec_reg_list <- fullSpecRegList(D_match_objects)
-## res_spec_reg_list  <- resSpecRegList(D_match_objects)
-## full_spec_partials_list <- fullSpecPartialsList(D_match_objects)
-## stepwise_reg_list <- stepwiseRegList(D_match_objects)
-
-###########
-
-strings[["model"]] <- "DiD"
-do.call(setStrings, strings)
-
-set.seed(20)
-raw <- RAW_match(flood_data_subsets[["IF"]])
-cem <- CEM_match(flood_data_subsets[["IF"]], "")
-mah <- MAH_match(flood_data_subsets[["IF"]], "", TRUE)
-mah_nr <- MAH_match(flood_data_subsets[["IF"]], "", FALSE)
-
-DiD_match_objects <- list(
-    "raw" = raw,
-    "cem" = cem,
-    "mah" = mah,
-    "mah_nr" = mah_nr
-)
-
-## plotL1Profiles(flood_data_subsets[["IF"]], DiD_match_objects)
-## imbalance_diagnostics <- getImbalanceDiagnostics(flood_data_subsets[["IF"]], DiD_match_objects)
-
-full_spec_reg_list <- fullSpecRegList(DiD_match_objects)
-full_spec_partials_list <- fullSpecPartialsList(DiD_match_objects)
-## stepwise_reg_list <- stepwiseRegList(DiD_match_objects)
-
-###########
-
-
-## strings[["model"]] <- "DiD"
-## strings[["treat_var"]] <- "flood"
-## do.call(setStrings, strings)
-
-## set.seed(20)
-## raw <- RAW_match(flood_data_subsets[["RF"]])
-## cem <- CEM_match(flood_data_subsets[["RF"]], "")
-## mah <- MAH_match(flood_data_subsets[["RF"]], "", TRUE)
-## mah_nr <- MAH_match(flood_data_subsets[["RF"]], "", FALSE)
-
-## DiD_match_objects <- list(
-##     "raw" = raw,
-##     "cem" = cem,
-##     "mah" = mah,
-##     "mah_nr" = mah_nr
-## )
-
-## plotL1Profiles(flood_data_subsets[["RF"]], DiD_match_objects)
-## imbalance_diagnostics <- getImbalanceDiagnostics(flood_data_subsets[["RF"]], DiD_match_objects)
-
-## full_spec_reg_list <- fullSpecRegList(DiD_match_objects)
-## full_spec_partials_list <- fullSpecPartialsList(DiD_match_objects)
-## stepwise_reg_list <- stepwiseRegList(DiD_match_objects)
-
-###########
-
-## strings[["model"]] <- "DiDiD"
-## strings[["treat_var"]] <- "flood"
-## strings[["inf_var"]] <- "flood_prone"
-## do.call(setStrings, strings)
-
-## set.seed(20)
-## raw <- RAW_match(flood_data_subsets[["IF"]])
-## cem <- CEM_match(flood_data_subsets[["IF"]], "")
-## mah <- MAH_match(flood_data_subsets[["IF"]], "", TRUE)
-## mah_nr <- MAH_match(flood_data_subsets[["IF"]], "", FALSE)
-
-## ## raw <- RAW_match(das)
-## ## cem <- CEM_match(das, "")
-## ## mah <- MAH_match(das, "", TRUE)
-## ## mah_nr <- MAH_match(das, "", FALSE)
-
-
-## DiDiD_match_objects <- list(
-##     "raw" = raw,
-##     "cem" = cem,
-##     "mah" = mah,
-##     "mah_nr" = mah_nr
-## )
-
-## ## plotL1Profiles(flood_data_subsets[["IF"]], DiDiD_match_objects)
-## ## imbalance_diagnostics <- getImbalanceDiagnostics(flood_data_subsets[["IF"]], DiDiD_match_objects)
-
-## full_spec_reg_list <- fullSpecRegList(DiDiD_match_objects)
-## full_spec_partials_list <- fullSpecPartialsList(DiDiD_match_objects)
-## stepwise_reg_list <- stepwiseRegList(DiDiD_match_objects)
-
-###########
-
-fs_ht <- FS_HT(full_spec_reg_list, coefs)
-st_ht <- lapply(stepwise_reg_list, function(x) { huxreg(x, statistics = c(N = "nobs", R2 = "r.squared"))})
-
-###########
-
-end.time <- Sys.time()
-time.taken <- end.time - start.time
-print(time.taken)
-
-print(fs_ht)
-
-tmp1 <- c(rep('', length(match_vars)))
-tmp2 <- c(rep('', length(match_vars)))
-tmp1[which(match_vars %in% exact_vars)] <- 'Y'
-tmp2[which(match_vars %in% mah_vars)] <- 'Y'
-
-ht <- hux(
-    "Variable name" = match_vars,
-    "Variable class" = sapply(das[match_vars], class),
-    "CEM" = rep('Y', length(match_vars)),
-    "Mahalanobis distance" = tmp2,
-    "Exact" = tmp1,
-    add_colnames = TRUE
-)
-
-bottom_border(ht)[1,]  <- 2
-right_padding(ht)      <- 10
-left_padding(ht)       <- 10
-width(ht)              <- 1
-col_width(ht)          <- c(rep(0.2,5))
-valign(ht)             <- 'bottom'
-align(ht)[,2:4]        <- 'center'
-match_vars_summary     <- map_wrap(ht, by_cols(FALSE, TRUE))
-rm(ht, tmp1, tmp2)
+## bottom_border(ht)[1,]  <- 2
+## right_padding(ht)      <- 10
+## left_padding(ht)       <- 10
+## width(ht)              <- 1
+## col_width(ht)          <- c(rep(0.2,5))
+## valign(ht)             <- 'bottom'
+## align(ht)[,2:4]        <- 'center'
+## match_vars_summary     <- map_wrap(ht, by_cols(FALSE, TRUE))
+## rm(ht, tmp1, tmp2)

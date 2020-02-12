@@ -29,6 +29,9 @@ harbour_areas <- returnBelowThreshold(dist_cbds, dist_threshold, c())
 ## Remove student_areas and harbour_areas from analysis #
 das <- das[which(!(das$area_unit_name %in% c(student_areas, harbour_areas))),]
 
+## Remove that one map outlier way out north of Forrester Park
+das <- das[which(!das$qpid == 1392904),]
+
 ## plot the excuded area_units
 tmp <- as.data.frame(cbind(area_unit_name = names(homeowner_rates), homeowner_rates, dist_cbds, excluded = ifelse(names(homeowner_rates) %in% c(harbour_areas, student_areas), 1, 0)))
 tmp[2:3] <- lapply(tmp[2:3], function(x){as.numeric(as.character(x))})
